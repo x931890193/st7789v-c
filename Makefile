@@ -43,7 +43,7 @@ ${DIR_BIN}/%.o:$(DIR_GUI)/%.c
 	$(CC) $(CFLAGS) -c  $< -o $@ -I $(DIR_Config)  -I $(DIR_EPD) -I $(DIR_Examples)
 
 ${DIR_BIN}/%.o:$(DIR_Config)/%.c
-	$(CC) $(CFLAGS) -c  $< -o $@ $(LIB)
+	$(CC) $(CFLAGS) -c  $< -o $@ $(LIB) -I $(DIR_Config)
 	
 clean :
 	rm $(DIR_BIN)/*.* 

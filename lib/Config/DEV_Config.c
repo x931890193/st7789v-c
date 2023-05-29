@@ -12,6 +12,7 @@
 #include "DEV_Config.h"
 
 #if USE_DEV_LIB
+#include "dev_hardware_SPI.h"
 pthread_t t1;
 UWORD pwm_dule=100;
 struct sched_param param;
