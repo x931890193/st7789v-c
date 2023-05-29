@@ -44,8 +44,8 @@
 #include <linux/types.h> 
 #include <linux/spi/spidev.h> 
 
-#ifndef _hardware_SPI
-#define _hardware_SPI
+#ifndef _SPI_H
+#define _SPI_H
 
 
 HARDWARE_SPI hardware_SPI;
