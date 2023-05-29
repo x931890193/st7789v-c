@@ -10,6 +10,7 @@
 *
 ******************************************************************************/
 #include "DEV_Config.h"
+#include "dev_hardware_SPI.h"
 
 #if USE_DEV_LIB
 pthread_t t1;
