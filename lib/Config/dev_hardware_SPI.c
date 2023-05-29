@@ -306,7 +306,7 @@ function:   Sets the SPI Bus Mode
 parameter:
 Info:  
     Order:
-        _SPI_3WIRE_Mode
+        SPI_3WIRE_Mode
         SPI_4WIRE_Mode
     Return :
         Return 1 success 
@@ -314,7 +314,7 @@ Info:
 ******************************************************************************/
 int DEV_HARDWARE_SPI_SetBusMode(BusMode mode)
 {
-    if(mode == _SPI_3WIRE_Mode){
+    if(mode == SPI_3WIRE_Mode){
         hardware_SPI.mode |= _SPI_3WIRE;
     }else if(mode == SPI_4WIRE_Mode){
         hardware_SPI.mode &= ~_SPI_3WIRE;
