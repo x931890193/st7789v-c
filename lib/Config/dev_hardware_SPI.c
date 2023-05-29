@@ -42,10 +42,7 @@
 #include <fcntl.h> 
 #include <sys/ioctl.h> 
 #include <linux/types.h> 
-#include <linux/spi/spidev.h> 
-
-#ifndef _SPI_H
-#define _SPI_H
+#include <linux/spi/spidev.h>
 
 
 HARDWARE_SPI hardware_SPI;
