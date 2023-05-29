@@ -45,6 +45,7 @@
 #include <linux/spi/spidev.h> 
 
 #ifndef _hardware_SPI
+#define _hardware_SPI
 
 
 HARDWARE_SPI hardware_SPI;
