@@ -13,7 +13,6 @@
 #define _DEV_CONFIG_H_
 
 #include "Debug.h"
-#include "dev_hardware_SPI.h"
 
 #ifdef USE_BCM2835_LIB
     #include <bcm2835.h>

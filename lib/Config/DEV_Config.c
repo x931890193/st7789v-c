@@ -9,6 +9,7 @@
 * | Info        :   Basic version
 *
 ******************************************************************************/
+#include "dev_hardware_SPI.h"
 #include "DEV_Config.h"
 
 #if USE_DEV_LIB
