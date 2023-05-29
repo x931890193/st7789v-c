@@ -44,6 +44,9 @@
 #include <linux/types.h> 
 #include <linux/spi/spidev.h> 
 
+#ifndef _hardware_SPI
+
+
 HARDWARE_SPI hardware_SPI;
 
 static uint8_t bits = 8; 
@@ -378,3 +381,4 @@ int DEV_HARDWARE_SPI_Transfer(uint8_t *buf, uint32_t len)
     return 1;
 }
 
+#endif /*_hardware_SPI*/

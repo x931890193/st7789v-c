@@ -2,13 +2,12 @@
 // Created by sato on 2023/5/29.
 //
 
-#include "../lib/Config/DEV_Config.c"
-#include "../lib/LCD/LCD_2inch.c"
-#include "../lib/GUI/GUI_Paint.c"
-#include "../lib/GUI/GUI_BMP.c"
-#include "../lib/Fonts/font16.c"
-#include "../lib/Fonts/font20.c"
-#include "../lib/Fonts/font24CN.c"
+#include "DEV_Config.h"
+#include "LCD_2inch.h"
+#include "GUI_Paint.h"
+#include "GUI_BMP.h"
+#include "GUI_Paint.h"
+#include "fonts.h"
 
 #include <stdio.h>		//printf()
 #include <stdlib.h>		//exit()
