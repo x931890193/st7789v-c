@@ -19,8 +19,8 @@
 #include <unistd.h>
 #include <stdint.h>
 
-#include "GUI_Paint.h"
 #include "DEV_Config.h"
+#include "GUI_Paint.h"
 
 #define  RGB(r,g,b)         (((r>>3)<<11)|((g>>2)<<5)|(b>>3))
 
