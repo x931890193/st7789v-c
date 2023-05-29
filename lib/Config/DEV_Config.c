@@ -9,8 +9,8 @@
 * | Info        :   Basic version
 *
 ******************************************************************************/
-#include "DEV_Config.h"
 #include "dev_hardware_SPI.h"
+#include "DEV_Config.h"
 
 #if USE_DEV_LIB
 pthread_t t1;
