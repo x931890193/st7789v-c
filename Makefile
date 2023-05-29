@@ -5,6 +5,11 @@ DIR_GUI      = ./lib/GUI
 DIR_Examples = ./examples
 DIR_BIN      = ./bin
 
+CC = riscv64-linux-gnu-gcc
+MSG = -g -O0 -Wall
+CFLAGS += $(MSG) $(DEBUG)
+
+
 OBJ_C = $(wildcard ${DIR_EPD}/*.c ${DIR_Config}/*.c ${DIR_GUI}/*.c ${DIR_Examples}/*.c ${DIR_FONTS}/*.c)
 OBJ_O = $(patsubst %.c,${DIR_BIN}/%.o,$(notdir ${OBJ_C}))
 
@@ -23,28 +28,23 @@ else ifeq ($(USELIB), USE_DEV_LIB)
 endif
 
 
-CC = riscv64-linux-gnu-gcc
-MSG = -g -O0 -Wall
-CFLAGS += $(MSG) $(DEBUG)
+${TARGET}:${OBJ_O}
+	$(CC) $(CFLAGS) $(OBJ_O) -o $@ $(LIB)
 
-build:
-	${TARGET}:${OBJ_O}
-		$(CC) $(CFLAGS) $(OBJ_O) -o $@ $(LIB)
+${DIR_BIN}/%.o:$(DIR_Examples)/%.c
+	$(CC) $(CFLAGS) -c  $< -o $@ -I $(DIR_Config) -I $(DIR_GUI) -I $(DIR_EPD) -I $(DIR_FONTS)
 
-	${DIR_BIN}/%.o:$(DIR_Examples)/%.c
-		$(CC) $(CFLAGS) -c  $< -o $@ -I $(DIR_Config) -I $(DIR_GUI) -I $(DIR_EPD)
+${DIR_BIN}/%.o:$(DIR_EPD)/%.c
+	$(CC) $(CFLAGS) -c  $< -o $@ -I $(DIR_Config)
 
-	${DIR_BIN}/%.o:$(DIR_EPD)/%.c
-		$(CC) $(CFLAGS) -c  $< -o $@ -I $(DIR_Config)
+${DIR_BIN}/%.o:$(DIR_FONTS)/%.c
+	$(CC) $(CFLAGS) -c  $< -o $@
 
-	${DIR_BIN}/%.o:$(DIR_FONTS)/%.c
-		$(CC) $(CFLAGS) -c  $< -o $@
+${DIR_BIN}/%.o:$(DIR_GUI)/%.c
+	$(CC) $(CFLAGS) -c  $< -o $@ -I $(DIR_Config)  -I $(DIR_EPD) -I $(DIR_Examples)
 
-	${DIR_BIN}/%.o:$(DIR_GUI)/%.c
-		$(CC) $(CFLAGS) -c  $< -o $@ -I $(DIR_Config)  -I $(DIR_EPD) -I $(DIR_Examples)
-
-	${DIR_BIN}/%.o:$(DIR_Config)/%.c
-		$(CC) $(CFLAGS) -c  $< -o $@ $(LIB)
+${DIR_BIN}/%.o:$(DIR_Config)/%.c
+	$(CC) $(CFLAGS) -c  $< -o $@ $(LIB)
 
 clean :
 	rm $(DIR_BIN)/*.* 
