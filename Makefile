@@ -31,7 +31,7 @@ ${TARGET}:${OBJ_O}
 	$(CC) $(CFLAGS) $(OBJ_O) -o $@ $(LIB)
     
 ${DIR_BIN}/%.o:$(DIR_Examples)/%.c
-	$(CC) $(CFLAGS) -c  $< -o $@ -I $(DIR_Config) -I $(DIR_GUI) -I $(DIR_EPD)
+	$(CC) $(CFLAGS) -c  $< -o $@ -I $(DIR_Config) -I $(DIR_GUI) -I $(DIR_EPD) -I $(DIR_FONTS)
     
 ${DIR_BIN}/%.o:$(DIR_EPD)/%.c
 	$(CC) $(CFLAGS) -c  $< -o $@ -I $(DIR_Config)
