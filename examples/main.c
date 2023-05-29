@@ -2,10 +2,14 @@
 // Created by sato on 2023/5/29.
 //
 
-#include "../lib/Config/DEV_Config.h"
-#include "../lib/LCD/LCD_2inch.h"
-#include "../lib/GUI/GUI_Paint.h"
-#include "../lib/GUI/GUI_BMP.h"
+#include "../lib/Config/DEV_Config.c"
+#include "../lib/LCD/LCD_2inch.c"
+#include "../lib/GUI/GUI_Paint.c"
+#include "../lib/GUI/GUI_BMP.c"
+#include "../lib/Fonts/font16.c"
+#include "../lib/Fonts/font20.c"
+#include "../lib/Fonts/font24CN.c"
+
 #include <stdio.h>		//printf()
 #include <stdlib.h>		//exit()
 #include <signal.h>     //signal()
@@ -71,10 +75,13 @@ void LCD_2IN()
     LCD_2IN_Display((UBYTE *)BlackImage);
     DEV_Delay_ms(300);
 
-    // /* show bmp */
-    printf("show bmp\r\n");
-
-    GUI_ReadBmp("./pic/LCD_2inch.bmp");
+    int status = GUI_ReadBmp("./pic/LCD_2inch.bmp");
+    if (status == 0) {
+        printf("show bmp\r\n");
+    } else {
+        printf("show bmp error\r\n");
+        exit(-1);
+    }
     LCD_2IN_Display((UBYTE *)BlackImage);
     DEV_Delay_ms(300);
     //#else
