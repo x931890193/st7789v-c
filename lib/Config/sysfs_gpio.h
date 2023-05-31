@@ -43,17 +43,21 @@
 #define DIR_MAXSIZ  60
 
 #define SYSFS_GPIO_DEBUG 0
-#if SYSFS_GPIO_DEBUG 
-	#define SYSFS_GPIO_Debug(__info,...) printf("Debug: " __info,##__VA_ARGS__)
+#if SYSFS_GPIO_DEBUG
+#define SYSFS_GPIO_Debug(__info,...) printf("Debug: " __info,##__VA_ARGS__)
 #else
-	#define SYSFS_GPIO_Debug(__info,...)  
-#endif 
+#define SYSFS_GPIO_Debug(__info, ...)
+#endif
 
 
 int SYSFS_GPIO_Export(int Pin);
+
 int SYSFS_GPIO_Unexport(int Pin);
+
 int SYSFS_GPIO_Direction(int Pin, int Dir);
+
 int SYSFS_GPIO_Read(int Pin);
+
 int SYSFS_GPIO_Write(int Pin, int value);
 
 #endif

@@ -288,10 +288,9 @@ void LCD_2IN_DrawPaint(UWORD x, UWORD y, UWORD Color)
 	LCD_2IN_WriteData_Word(Color); 	    
 }
 
-void  Handler_2IN_LCD(int signal)
-{
+void Handler_2IN_LCD(int signal) {
     //System Exit
-    printf("\r\nHandler:Program stop\r\n");     
+    printf("\r\nHandler:Program stop\r\n");
     DEV_ModuleExit();
-	exit(0);
+    exit(0);
 }
