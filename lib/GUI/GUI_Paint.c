@@ -41,7 +41,7 @@
 #include <string.h> //memset()
 #include <math.h>
 
-PAINT Paint;
+PAINT Paint; // global variable
 
 /******************************************************************************
 function: Create Image
@@ -61,9 +61,6 @@ void Paint_NewImage(UWORD *image, UWORD Width, UWORD Height, UWORD Rotate, UWORD
     Paint.WidthByte = Width;
     Paint.HeightByte = Height;
     Paint.Depth = Depth;
-//    printf("WidthByte = %d, HeightByte = %d\r\n", Paint.WidthByte, Paint.HeightByte);
-//    printf(" EPD_WIDTH / 8 = %d\r\n",  122 / 8);
-
     Paint.Rotate = Rotate;
     Paint.Mirror = MIRROR_NONE;
 
@@ -289,11 +286,10 @@ void Paint_DrawLine(UWORD Xstart, UWORD Ystart, UWORD Xend, UWORD Yend,
     int Esp = dx + dy;
     char Dotted_Len = 0;
 
-    for (;;) {
+    while (1) {
         Dotted_Len++;
         //Painted dotted line, 2 point is really virtual
         if (Line_Style == LINE_STYLE_DOTTED && Dotted_Len % 3 == 0) {
-            //DEBUG("LINE_DOTTED\r\n");
             Paint_DrawPoint(Xpoint, Ypoint, IMAGE_BACKGROUND, Line_width, DOT_STYLE_DFT);
             Dotted_Len = 0;
         } else {
@@ -738,38 +734,3 @@ void Paint_DrawBitMap(const unsigned char *image_buffer) {
         }
     }
 }
-
-
-/*
-void GUI_Partial_Refresh(UWORD Xstart, UWORD Ystart, UWORD Xend, UWORD Yend)
-{
-    UWORD X0, Y0, X1, Y1;
-    switch(Paint.Rotate) {
-    case 0:
-        X0 = Xstart;
-        Y0 = Ystart;
-        X1 = Xend;
-        Y1 = Yend;
-        break;
-    case 90:
-        X0 = Ystart;
-        Y0 = Paint.WidthMemory  - Xend ;
-        X1 = Yend;
-        Y1 = Paint.WidthMemory  - Xstart ;
-        break;
-    case 180:
-        X0 = Paint.WidthMemory  - Xend ;
-        Y0 = Paint.HeightMemory - Yend ;
-        X1 = Paint.WidthMemory  - Xstart ;
-        Y1 = Paint.HeightMemory - Ystart ;
-        break;
-    case 270:
-        X0 = Paint.WidthMemory  - Xend ;
-        Y0 = Xstart;
-        X1 = Paint.HeightMemory - Ystart ;
-        Y1 = Paint.HeightMemory - Yend ;
-        break;
-    }
-    LCD_1in54_DisplayWindows(X0, Y0, X1, Y1, Paint.Image);
-}
-*/

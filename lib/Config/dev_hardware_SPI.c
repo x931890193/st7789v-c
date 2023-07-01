@@ -44,7 +44,7 @@
 #include <linux/types.h>
 #include <linux/spi/spidev.h>
 
-HARDWARE_SPI hardware_SPI;
+HARDWARE_SPI hardware_SPI; // global variable
 
 static uint8_t bits = 8;
 
