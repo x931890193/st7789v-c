@@ -291,7 +291,7 @@ void monitor() {
         float temperature = 0;
         temperature = get_temperature();
         char temperature_info[32] = {0};
-        sprintf(temperature_info, "Temp:%.2f", temperature); // TODO:温度单位 ℃
+        sprintf(temperature_info, "Temp:%.2f'C", temperature); // TODO:温度单位 ℃
         Paint_DrawString_EN(5, base_y + line_height * (i + 1), temperature_info, &Font16, WHITE, BLACK);
         LCD_2IN_Display((UBYTE *) BlackImage);
     }
