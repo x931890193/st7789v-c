@@ -2,6 +2,9 @@
 // Created by sato on 2023/7/2.
 // ref: https://gitee.com/peng-jiaweibabe/c-json/blob/master/cJSON.h
 
+#ifndef cJSON__h
+#define cJSON__h
+
 #ifdef __cplusplus
 extern "C"
 {
@@ -160,4 +163,6 @@ extern double cJSON_SetNumberHelper(cJSON *object, double number);
 
 #ifdef __cplusplus
 }
+#endif
+
 #endif
