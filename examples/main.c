@@ -31,87 +31,30 @@ struct BroadcastInfo {
     char ip[32];
 };
 
-struct BroadcastInfo broadcastInfo;
-
-char host[2][32] = {0};
-
 int *sock_fd;
-
 int create_udp_socket();
-
 float get_temperature();
+void get_localhost_ip(char *);
+void *broadcast_receiver();
+struct BroadcastInfo *parse_broadcast_to_struct(char *buffer);
+void show_broadcast_info();
 
-void *broadcast_sender();
+// 定义一个数组存放广播信息
+struct BroadcastInfo *broadcast_info[10];
 
-void *broadcast_receiver() {
-
-    //1.创建udp套接字
-    int sock_fd = socket(AF_INET, SOCK_DGRAM, 0);
-    if (sock_fd < 0) {
-        perror("socket error");
-        return (void *) -1;
+// 创建udp套接字
+int create_udp_socket() {
+    // 如果已经创建过套接字，直接返回
+    if (sock_fd != NULL) {
+        return 0;
     }
-    //设置端口地址复用
-    int on = 1;
-    int rt = setsockopt(sock_fd, SOL_SOCKET, SO_REUSEADDR, &on, sizeof(on));
-    if (rt < 0) {
-        perror("setsockopt error");
-        goto recv_err;
+    sock_fd = (int *) malloc(sizeof(int));
+    *sock_fd = socket(AF_INET, SOCK_DGRAM, 0);
+    if (*sock_fd < 0) {
+        printf("create socket error\n");
+        return -1;
     }
-
-    //2.绑定地址
-    struct sockaddr_in src_addr;
-    memset(&src_addr, 0, sizeof(src_addr));
-    src_addr.sin_family = AF_INET;//地址族IPV4
-    src_addr.sin_port = htons(BROADCAST_PORT);//设置端口号
-    src_addr.sin_addr.s_addr = htonl(INADDR_ANY);
-
-    int ret = bind(sock_fd, (struct sockaddr *) &src_addr, sizeof(src_addr));
-    if (ret < 0) {
-        perror("bind error");
-        goto recv_err;
-    }
-
-    while (1) {
-        //3.接收数据
-        char buffer[1024] = {0};
-        cJSON *json = NULL;
-        cJSON *host = NULL;
-        cJSON *from = NULL;
-        cJSON *temp = NULL;
-        cJSON *time = NULL;
-
-        struct sockaddr_in send_addr;
-        socklen_t len = sizeof(send_addr);
-        ret = recvfrom(sock_fd, buffer, sizeof(buffer), 0, (struct sockaddr *) &send_addr, &len);
-        if (ret < 0) {
-            perror("recvfrom error");
-            goto recv_err;
-        }
-        char * ipString = inet_ntoa(send_addr.sin_addr);
-        printf("recv: %s from %s:%d\n", buffer, ipString, send_addr.sin_port);
-        json = cJSON_Parse(buffer);
-        if (NULL == json) {
-            printf("Error before: [%s]\n", cJSON_GetErrorPtr());
-        }
-        host = cJSON_GetObjectItem(json, "host");
-        from = cJSON_GetObjectItem(json, "from");
-        temp = cJSON_GetObjectItem(json, "temp");
-        time = cJSON_GetObjectItem(json, "time");
-        ip = cJSON_GetObjectItem(json, "ip");
-        broadcastInfo.host = host->valuestring;
-        broadcastInfo.from = from->valuestring;
-        broadcastInfo.temp = temp->valuestring;
-        broadcastInfo.time = time->valuestring;
-        broadcastInfo.ip = ip->valuestring;
-        cJSON_print(json);
-        cJSON_Delete(json);
-
-    }
-    recv_err:
-    //4.关闭套接字
-    close(sock_fd);
-    return NULL;
+    return 0;
 }
 
 // 获取温度
@@ -134,23 +77,7 @@ float get_temperature() {
     return temp;
 }
 
-// 创建udp套接字
-int create_udp_socket() {
-    // 如果已经创建过套接字，直接返回
-    if (sock_fd != NULL) {
-        return 0;
-    }
-    sock_fd = (int *) malloc(sizeof(int));
-    *sock_fd = socket(AF_INET, SOCK_DGRAM, 0);
-    if (*sock_fd < 0) {
-        printf("create socket error\n");
-        return -1;
-    }
-    return 0;
-}
-
-void get_localhost_ip(char *);
-
+// 获取本机ip
 void get_localhost_ip(char *ip_info) {
     int interface_idx = 0;  // 网络接口索引
     struct ifconf ifc;
@@ -178,6 +105,91 @@ void get_localhost_ip(char *ip_info) {
         strcat(ip_info, ip);
         strcat(ip_info, "\n");
         ifr = ifr + 1;
+    }
+}
+
+// 广播接收线程
+void *broadcast_receiver() {
+    struct sockaddr_in addr;
+    struct sockaddr_in client_addr;
+    socklen_t client_addr_len = sizeof(client_addr);
+    char buffer[1024];
+    int recv_len;
+    create_udp_socket();
+    addr.sin_family = AF_INET;
+    addr.sin_port = htons(BROADCAST_PORT);
+    addr.sin_addr.s_addr = htonl(INADDR_ANY);
+    if (bind(*sock_fd, (struct sockaddr *) &addr, sizeof(addr)) < 0) {
+        printf("bind error\n");
+        return NULL;
+    }
+    while (1) {
+        memset(buffer, 0, sizeof(buffer));
+        recv_len = recvfrom(*sock_fd, buffer, sizeof(buffer), 0, (struct sockaddr *) &client_addr, &client_addr_len);
+        if (recv_len < 0) {
+            printf("recvfrom error\n");
+            continue;
+        }
+        parse_broadcast_to_struct(buffer);
+    }
+}
+
+// 解析广播信息 根据host 去重放到一个广播数组中
+struct BroadcastInfo *parse_broadcast_to_struct(char *buffer) {
+    cJSON *json;
+    cJSON *host;
+    cJSON *from;
+    cJSON *temp;
+    cJSON *time;
+    cJSON *ip;
+    struct BroadcastInfo *info;
+    int i;
+    json = cJSON_Parse(buffer);
+    if (json == NULL) {
+        printf("parse json error\n");
+        return NULL;
+    }
+    host = cJSON_GetObjectItem(json, "host");
+    from = cJSON_GetObjectItem(json, "from");
+    temp = cJSON_GetObjectItem(json, "temp");
+    time = cJSON_GetObjectItem(json, "time");
+    ip = cJSON_GetObjectItem(json, "ip");
+    info = (struct BroadcastInfo *) malloc(sizeof(struct BroadcastInfo));
+    strcpy(info->host, host->valuestring);
+    strcpy(info->from, from->valuestring);
+    strcpy(info->temp, temp->valuestring);
+    strcpy(info->time, time->valuestring);
+    strcpy(info->ip, ip->valuestring);
+    for (i = 0; i < 10; i++) {
+        if (broadcast_info[i] == NULL) {
+            broadcast_info[i] = info;
+            break;
+        }
+        if (strcmp(broadcast_info[i]->host, info->host) == 0) {
+            broadcast_info[i] = info;
+            break;
+        }
+    }
+    return info;
+}
+
+// 循环广播数组显示信息
+void show_broadcast_info() {
+    int base_y = 10;
+    int line_height = 20;
+    for (int i = 0; i < 10; i++) {
+        if (broadcast_info[i] != NULL) {
+            // hostname
+            Paint_DrawString_EN(80, base_y,  broadcast_info[i]->host, &Font20, WHITE, BLACK);
+            // ip
+            char ip_info[128] = {0};
+            sprintf(ip_info, "IP:%s", broadcast_info[i]->ip);
+            Paint_DrawString_EN(5, base_y + line_height * (i + 1), ip_info, &Font16, WHITE, BLACK);
+            // temp
+            char temperature_info[32] = {0};
+            sprintf(temperature_info, "Temp:%s'C", broadcast_info[i]->temp); // TODO:温度单位 ℃
+            Paint_DrawString_EN(5, base_y + 40, temperature_info, &Font16, WHITE, BLACK);
+        }
     }
 }
 
@@ -332,7 +344,7 @@ void monitor() {
     time_t timep;
     struct tm *p_tm;
     PAINT_TIME p_time;
-    int base_y = 10;
+
     // main loop
     while (1) {
         Paint_Clear(WHITE);
@@ -356,31 +368,7 @@ void monitor() {
         p_time.Min = p_tm->tm_min;
         p_time.Sec = p_tm->tm_sec;
         Paint_DrawTime(5, 200, &p_time, &Font20, IMAGE_BACKGROUND, BLUE);
-
-        // 本机主机名
-        char hostname[128];
-        gethostname(hostname, 128);
-        Paint_DrawString_EN(80, base_y, hostname, &Font20, WHITE, BLACK);
-
-        // 本机IP信息
-        char ip_info[1024] = {0};
-        get_localhost_ip(ip_info);
-        //printf("ip_info:%s\n", ip_info);
-        char *pch;
-        pch = strtok(ip_info, "\n");
-        int line_height = 20;
-        int i = 0;
-        while (pch != NULL) {
-            Paint_DrawString_EN(5, base_y + line_height * (i + 1), pch, &Font16, WHITE, BLACK);
-            pch = strtok(NULL, "\n");
-            i++;
-        }
-        // 本机温度信息
-        float temperature = 0;
-        temperature = get_temperature();
-        char temperature_info[32] = {0};
-        sprintf(temperature_info, "Temp:%.2f'C", temperature); // TODO:温度单位 ℃
-        Paint_DrawString_EN(5, base_y + line_height * (i + 1), temperature_info, &Font16, WHITE, BLACK);
+        show_broadcast_info();
         LCD_2IN_Display((UBYTE *) BlackImage);
         DEV_Delay_ms(500);
     }
@@ -391,7 +379,7 @@ void monitor() {
 
 int main() {
     pthread_t p_recv;
-    pthread_create(&p_recv, NULL, receiver, NULL);
+    pthread_create(&p_recv, NULL, broadcast_receiver, NULL);
     printf("start\n");
     pthread_join(p_recv, NULL);
     monitor();
