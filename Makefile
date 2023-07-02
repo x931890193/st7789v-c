@@ -3,7 +3,7 @@ DIR_EPD      = ./lib/LCD
 DIR_FONTS    = ./lib/Fonts
 DIR_GUI      = ./lib/GUI
 DIR_Examples = ./examples
-DIR_CJSON = ./cjson
+DIR_CJSON    = ./lib/cjson
 DIR_BIN      = ./bin
 
 CC = riscv64-linux-gnu-gcc
