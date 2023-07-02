@@ -19,7 +19,6 @@ extern "C"
 extern const char* cJSON_Version(void);
 
 #include <stddef.h>
-#include "fonts.h"
 
 /* cJSON Types: */
 #define cJSON_Invalid (0)
