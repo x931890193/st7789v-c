@@ -3,6 +3,7 @@ DIR_EPD      = ./lib/LCD
 DIR_FONTS    = ./lib/Fonts
 DIR_GUI      = ./lib/GUI
 DIR_Examples = ./examples
+DIR_CJSON = ./cjson
 DIR_BIN      = ./bin
 
 CC = riscv64-linux-gnu-gcc
@@ -10,7 +11,7 @@ MSG = -g -O0 -Wall
 CFLAGS += $(MSG) $(DEBUG)
 
 
-OBJ_C = $(wildcard ${DIR_EPD}/*.c ${DIR_Config}/*.c ${DIR_GUI}/*.c ${DIR_Examples}/*.c ${DIR_FONTS}/*.c)
+OBJ_C = $(wildcard ${DIR_EPD}/*.c ${DIR_Config}/*.c ${DIR_GUI}/*.c ${DIR_Examples}/*.c ${DIR_FONTS}/*.c, ${DIR_CJSON}/*.c)
 OBJ_O = $(patsubst %.c,${DIR_BIN}/%.o,$(notdir ${OBJ_C}))
 
 TARGET = main
@@ -45,6 +46,9 @@ ${DIR_BIN}/%.o:$(DIR_GUI)/%.c
 
 ${DIR_BIN}/%.o:$(DIR_Config)/%.c
 	$(CC) $(CFLAGS) -c  $< -o $@ $(LIB)
+
+${DIR_BIN}/%.o:$(DIR_CJSON)/%.c
+	$(CC) $(CFLAGS) -c  $< -o $@ -I $(DIR_CJSON) -lm
 
 clean :
 	rm $(DIR_BIN)/*.* 

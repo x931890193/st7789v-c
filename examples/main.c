@@ -19,12 +19,100 @@
 #include "GUI_BMP.h"
 #include "GUI_Paint.h"
 #include "fonts.h"
+#include "cjson.h"
+
+#define BROADCAST_PORT 4000
+
+struct BroadcastInfo {
+    char host[128];
+    char from[32];
+    char temp[32];
+    char time[64];
+    char ip[32];
+};
+
+struct BroadcastInfo broadcastInfo;
+
+char host[2][32] = {0};
 
 int *sock_fd;
 
 int create_udp_socket();
 
 float get_temperature();
+
+void *broadcast_sender();
+
+void *broadcast_receiver() {
+
+    //1.创建udp套接字
+    int sock_fd = socket(AF_INET, SOCK_DGRAM, 0);
+    if (sock_fd < 0) {
+        perror("socket error");
+        return (void *) -1;
+    }
+    //设置端口地址复用
+    int on = 1;
+    int rt = setsockopt(sock_fd, SOL_SOCKET, SO_REUSEADDR, &on, sizeof(on));
+    if (rt < 0) {
+        perror("setsockopt error");
+        goto recv_err;
+    }
+
+    //2.绑定地址
+    struct sockaddr_in src_addr;
+    memset(&src_addr, 0, sizeof(src_addr));
+    src_addr.sin_family = AF_INET;//地址族IPV4
+    src_addr.sin_port = htons(BROADCAST_PORT);//设置端口号
+    src_addr.sin_addr.s_addr = htonl(INADDR_ANY);
+
+    int ret = bind(sock_fd, (struct sockaddr *) &src_addr, sizeof(src_addr));
+    if (ret < 0) {
+        perror("bind error");
+        goto recv_err;
+    }
+
+    while (1) {
+        //3.接收数据
+        char buffer[1024] = {0};
+        cJSON *json = NULL;
+        cJSON *host = NULL;
+        cJSON *from = NULL;
+        cJSON *temp = NULL;
+        cJSON *time = NULL;
+
+        struct sockaddr_in send_addr;
+        socklen_t len = sizeof(send_addr);
+        ret = recvfrom(sock_fd, buffer, sizeof(buffer), 0, (struct sockaddr *) &send_addr, &len);
+        if (ret < 0) {
+            perror("recvfrom error");
+            goto recv_err;
+        }
+        char * ipString = inet_ntoa(send_addr.sin_addr);
+        printf("recv: %s from %s:%d\n", buffer, ipString, send_addr.sin_port);
+        json = cJSON_Parse(buffer);
+        if (NULL == json) {
+            printf("Error before: [%s]\n", cJSON_GetErrorPtr());
+        }
+        host = cJSON_GetObjectItem(json, "host");
+        from = cJSON_GetObjectItem(json, "from");
+        temp = cJSON_GetObjectItem(json, "temp");
+        time = cJSON_GetObjectItem(json, "time");
+        ip = cJSON_GetObjectItem(json, "ip");
+        broadcastInfo.host = host->valuestring;
+        broadcastInfo.from = from->valuestring;
+        broadcastInfo.temp = temp->valuestring;
+        broadcastInfo.time = time->valuestring;
+        broadcastInfo.ip = ip->valuestring;
+        cJSON_print(json);
+        cJSON_Delete(json);
+
+    }
+    recv_err:
+    //4.关闭套接字
+    close(sock_fd);
+    return NULL;
+}
 
 // 获取温度
 float get_temperature() {
@@ -258,22 +346,22 @@ void monitor() {
             default:
                 exit(0);
         }
-        // 本机主机名
-        char hostname[128];
-        gethostname(hostname, 128);
-        Paint_DrawString_EN(80, base_y, hostname, &Font20, WHITE, BLACK);
         // 打印时间
         time((time_t * ) & timep);
         p_tm = localtime((time_t * ) & timep);
-
         p_time.Year = 1900 + p_tm->tm_year;
         p_time.Month = p_tm->tm_mon + 1;
         p_time.Day = p_tm->tm_mday;
         p_time.Hour = p_tm->tm_hour;
         p_time.Min = p_tm->tm_min;
         p_time.Sec = p_tm->tm_sec;
-
         Paint_DrawTime(5, 200, &p_time, &Font20, IMAGE_BACKGROUND, BLUE);
+
+        // 本机主机名
+        char hostname[128];
+        gethostname(hostname, 128);
+        Paint_DrawString_EN(80, base_y, hostname, &Font20, WHITE, BLACK);
+
         // 本机IP信息
         char ip_info[1024] = {0};
         get_localhost_ip(ip_info);
@@ -302,7 +390,11 @@ void monitor() {
 }
 
 int main() {
+    pthread_t p_recv;
+    pthread_create(&p_recv, NULL, receiver, NULL);
     printf("start\n");
+    pthread_join(p_recv, NULL);
     monitor();
+
     return 0;
 }
