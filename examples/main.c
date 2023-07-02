@@ -21,12 +21,15 @@
 #include "fonts.h"
 #include "cjson.h"
 
+#define BROADCAST_ADDR "255.255.255.255"
 #define BROADCAST_PORT 4000
+#define COUNT  10
+#define SendSleepTime 3
 
 struct BroadcastInfo {
-    char host[128];
-    char from[32];
-    char temp[32];
+    char host[64];
+    char from[64];
+    char temp[8];
     char time[64];
     char ip[32];
 };
@@ -36,11 +39,11 @@ int create_udp_socket();
 float get_temperature();
 void get_localhost_ip(char *);
 void *broadcast_receiver();
-struct BroadcastInfo *parse_broadcast_to_struct(char *buffer);
+void *parse_broadcast_to_struct(char *buffer, char *ip);
 void show_broadcast_info();
 
 // 定义一个数组存放广播信息
-struct BroadcastInfo *broadcast_info[10];
+struct BroadcastInfo *broadcast_info[COUNT];
 
 // 创建udp套接字
 int create_udp_socket() {
@@ -108,6 +111,58 @@ void get_localhost_ip(char *ip_info) {
     }
 }
 
+// 发送广播
+void *sender() {
+    //1.创建udp套接字
+    int sock_fd = socket(AF_INET, SOCK_DGRAM, 0);
+    if (sock_fd < 0) {
+        perror("socket error");
+        return (void *) -1;
+    }
+    //2.开启广播
+    int on = 1;
+    int ret = setsockopt(sock_fd, SOL_SOCKET, SO_BROADCAST, &on, sizeof(on));
+    if (ret < 0) {
+        perror("setsockopt error");
+        goto err;
+    }
+
+    struct sockaddr_in dest_addr;
+    memset(&dest_addr, 0, sizeof(dest_addr));
+    dest_addr.sin_family = AF_INET;//地址族IPV4
+    dest_addr.sin_port = htons(BROADCAST_PORT);//设置端口号
+    dest_addr.sin_addr.s_addr = inet_addr(BROADCAST_ADDR);//设置广播地址
+    char time_str[128] = "";
+    time_t now;
+
+    while (1) {
+        char host_buffer[128];
+        ret = gethostname(host_buffer, sizeof(host_buffer));
+        if (ret < 0) {
+            perror("get hostname error");
+            goto err;
+        }
+        char *to_send = (char *) malloc(1024);
+        time(&now);
+        strftime(time_str, 128, "%Y-%m-%d %H:%M:%S", localtime(&now));
+
+        float temp = get_temperature();
+        sprintf(to_send, "{\"host\": \"%s\", \"time\": \"%s\", \"from\": \"C\", \"temp\": \"%.2f\"}", host_buffer, time_str, temp);
+        // 3.发送数据
+        ret = sendto(sock_fd, to_send, strlen(to_send), 0, (struct sockaddr *) &dest_addr, sizeof(dest_addr));
+        free(to_send);
+        if (ret < 0) {
+            perror("sendto error");
+            goto err;
+        }
+        sleep(SendSleepTime);
+    }
+    err:
+    // 4.关闭套接字
+    close(sock_fd);
+    return NULL;
+}
+
 // 广播接收线程
 void *broadcast_receiver() {
     struct sockaddr_in addr;
@@ -130,20 +185,25 @@ void *broadcast_receiver() {
             printf("recvfrom error\n");
             continue;
         }
-        parse_broadcast_to_struct(buffer);
+        // 解析广播信息
+        char to_analyze_buffer[1024] = {0};
+        char *ipString = inet_ntoa(client_addr.sin_addr);
+
+        strncpy(to_analyze_buffer, buffer, recv_len);
+        parse_broadcast_to_struct(to_analyze_buffer, ipString);
     }
 }
 
-// 解析广播信息 根据host 去重放到一个广播数组中
-struct BroadcastInfo *parse_broadcast_to_struct(char *buffer) {
+// 解析广播信息 根据host 放到一个广播数组中
+void *parse_broadcast_to_struct(char *buffer, char *ip) {
     cJSON *json;
+
     cJSON *host;
     cJSON *from;
     cJSON *temp;
     cJSON *time;
-    cJSON *ip;
+
     struct BroadcastInfo *info;
-    int i;
     json = cJSON_Parse(buffer);
     if (json == NULL) {
         printf("parse json error\n");
@@ -153,14 +213,14 @@ struct BroadcastInfo *parse_broadcast_to_struct(char *buffer) {
     from = cJSON_GetObjectItem(json, "from");
     temp = cJSON_GetObjectItem(json, "temp");
     time = cJSON_GetObjectItem(json, "time");
-    ip = cJSON_GetObjectItem(json, "ip");
+
     info = (struct BroadcastInfo *) malloc(sizeof(struct BroadcastInfo));
     strcpy(info->host, host->valuestring);
     strcpy(info->from, from->valuestring);
     strcpy(info->temp, temp->valuestring);
     strcpy(info->time, time->valuestring);
-    strcpy(info->ip, ip->valuestring);
-    for (i = 0; i < 10; i++) {
+    strcpy(info->ip, ip);
+    for (int i = 0; i < 10; i++) {
         if (broadcast_info[i] == NULL) {
             broadcast_info[i] = info;
             break;
@@ -170,25 +230,33 @@ struct BroadcastInfo *parse_broadcast_to_struct(char *buffer) {
             break;
         }
     }
-    return info;
+    return NULL;
 }
 
 // 循环广播数组显示信息
 void show_broadcast_info() {
-    int base_y = 10;
-    int line_height = 20;
-    for (int i = 0; i < 10; i++) {
+    int base_y = 6;
+    int base_x = 5;
+    int line_height = 16;
+    for (int i = 0; i < COUNT; i++) {
         if (broadcast_info[i] != NULL) {
             // hostname
-            Paint_DrawString_EN(80, base_y,  broadcast_info[i]->host, &Font20, WHITE, BLACK);
+            char hostname_info[128] = {0};
+            sprintf(hostname_info, "%s", broadcast_info[i]->host);
+            Paint_DrawString_EN((LCD_2IN_HEIGHT - strlen(hostname_info)) / 5, base_y + line_height * 0,  hostname_info, &Font16, WHITE, BLACK);
             // ip
             char ip_info[128] = {0};
             sprintf(ip_info, "IP:%s", broadcast_info[i]->ip);
-            Paint_DrawString_EN(5, base_y + line_height * (i + 1), ip_info, &Font16, WHITE, BLACK);
+            Paint_DrawString_EN(base_x, base_y + line_height * 1, ip_info, &Font12, WHITE, BLACK);
             // temp
             char temperature_info[32] = {0};
             sprintf(temperature_info, "Temp:%s'C", broadcast_info[i]->temp); // TODO:温度单位 ℃
-            Paint_DrawString_EN(5, base_y + 40, temperature_info, &Font16, WHITE, BLACK);
+            Paint_DrawString_EN(base_x, base_y + line_height * 2, temperature_info, &Font12, WHITE, BLACK);
+            // time
+            char time_info[128] = {0};
+            sprintf(time_info, "Time:%s", broadcast_info[i]->time);
+            Paint_DrawString_EN(base_x, base_y + line_height * 3, time_info, &Font12, WHITE, BLACK);
+            base_y = base_y + line_height * 4;
         }
     }
 }
@@ -313,7 +381,7 @@ void base_demo() {
     DEV_ModuleExit();
 }
 
-void monitor() {
+void *display() {
     // Exception handling:ctrl + c
     signal(SIGINT, Handler_2IN_LCD);
 
@@ -367,7 +435,7 @@ void monitor() {
         p_time.Hour = p_tm->tm_hour;
         p_time.Min = p_tm->tm_min;
         p_time.Sec = p_tm->tm_sec;
-        Paint_DrawTime(5, 200, &p_time, &Font20, IMAGE_BACKGROUND, BLUE);
+        Paint_DrawTime(200, 200, &p_time, &Font20, IMAGE_BACKGROUND, BLUE);
         show_broadcast_info();
         LCD_2IN_Display((UBYTE *) BlackImage);
         DEV_Delay_ms(500);
@@ -378,11 +446,14 @@ void monitor() {
 }
 
 int main() {
-    pthread_t p_recv;
+    pthread_t p_send, p_recv, p_display;
+    pthread_create(&p_send, NULL, sender, NULL);
     pthread_create(&p_recv, NULL, broadcast_receiver, NULL);
-    printf("start\n");
+    pthread_create(&p_display, NULL, display, NULL);
+
+    pthread_join(p_send, NULL);
     pthread_join(p_recv, NULL);
-    monitor();
+    pthread_join(p_display, NULL);
 
     return 0;
 }

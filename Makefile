@@ -48,7 +48,7 @@ ${DIR_BIN}/%.o:$(DIR_Config)/%.c
 	$(CC) $(CFLAGS) -c  $< -o $@ $(LIB)
 
 ${DIR_BIN}/%.o:$(DIR_CJSON)/%.c
-	$(CC) $(CFLAGS) -c  $< -o $@ -I $(DIR_CJSON) -I $(DIR_FONTS) -lm
+	$(CC) $(CFLAGS) -c  $< -o $@ -I $(DIR_CJSON)
 
 clean :
 	rm $(DIR_BIN)/*.* 
