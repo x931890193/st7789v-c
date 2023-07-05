@@ -20,6 +20,7 @@
 #include "GUI_Paint.h"
 #include "fonts.h"
 #include "cjson.h"
+#include "./img/img.h"
 
 #define BROADCAST_ADDR "255.255.255.255"
 #define BROADCAST_PORT 4000
@@ -261,7 +262,9 @@ void show_broadcast_info() {
     }
 }
 
-void base_demo() {
+// 初始化lcd
+void set_up()
+{
     // Exception handling:ctrl + c
     signal(SIGINT, Handler_2IN_LCD);
 
@@ -272,7 +275,7 @@ void base_demo() {
     }
 
     /* LCD Init */
-    printf("2inch LCD demo...\n");
+    printf("2inch LCD monitor...\n");
     LCD_2IN_Init();
     LCD_2IN_Clear(WHITE);
     LCD_SetBacklight(1010);
@@ -284,10 +287,15 @@ void base_demo() {
         exit(0);
     }
 
-    // /*1.Create a new image cache named IMAGE_RGB and fill it with white*/
+    // *1.Create a new image cache named IMAGE_RGB and fill it with white*/
     Paint_NewImage(BlackImage, LCD_2IN_WIDTH, LCD_2IN_HEIGHT, 90, WHITE, 16);
     Paint_Clear(WHITE);
     Paint_SetRotate(ROTATE_270);
+}
+
+// official demo
+void base_demo() {
+    set_up();
     // /* GUI */
     printf("drawing...\n");
 
@@ -381,33 +389,9 @@ void base_demo() {
     DEV_ModuleExit();
 }
 
-void *display() {
-    // Exception handling:ctrl + c
-    signal(SIGINT, Handler_2IN_LCD);
-
-    /* Module Init */
-    if (DEV_ModuleInit() != 0) {
-        DEV_ModuleExit();
-        exit(0);
-    }
-
-    /* LCD Init */
-    printf("2inch LCD monitor...\n");
-    LCD_2IN_Init();
-    LCD_2IN_Clear(WHITE);
-    LCD_SetBacklight(1010);
-
-    UDOUBLE Imagesize = LCD_2IN_HEIGHT * LCD_2IN_WIDTH * 2;
-    UWORD *BlackImage;
-    if ((BlackImage = (UWORD *) malloc(Imagesize)) == NULL) {
-        printf("Failed to apply for black memory...\n");
-        exit(0);
-    }
-
-    // *1.Create a new image cache named IMAGE_RGB and fill it with white*/
-    Paint_NewImage(BlackImage, LCD_2IN_WIDTH, LCD_2IN_HEIGHT, 90, WHITE, 16);
-    Paint_Clear(WHITE);
-    Paint_SetRotate(ROTATE_270);
+// broadcast demo
+void *broadcast_demo() {
+    set_up();
     short step = 0;
     time_t timep;
     struct tm *p_tm;
@@ -438,6 +422,7 @@ void *display() {
         Paint_DrawTime(200, 200, &p_time, &Font20, IMAGE_BACKGROUND, BLUE);
         show_broadcast_info();
         LCD_2IN_Display((UBYTE *) BlackImage);
+        Paint_DrawImage(temperature, 0, 0, 240, 240);
         DEV_Delay_ms(500);
     }
     free(BlackImage);
@@ -445,11 +430,17 @@ void *display() {
     DEV_ModuleExit();
 }
 
+// desktop显示
+void *desktop() {
+    set_up();
+    Paint_DrawImage(gImage_desktop, 0, 0, 240, 240);
+}
+
 int main() {
     pthread_t p_send, p_recv, p_display;
     pthread_create(&p_send, NULL, sender, NULL);
     pthread_create(&p_recv, NULL, broadcast_receiver, NULL);
-    pthread_create(&p_display, NULL, display, NULL);
+    pthread_create(&p_display, NULL, broadcast_demo, NULL);
 
     pthread_join(p_send, NULL);
     pthread_join(p_recv, NULL);
