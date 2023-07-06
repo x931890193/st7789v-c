@@ -436,7 +436,7 @@ void *broadcast_demo() {
 void *desktop() {
     UWORD *BlackImage;
     BlackImage = set_up();
-    Paint_DrawImage(image_data_base, 0, 0, 240, 320);
+    Paint_DrawImage(image_data_base, 0, 0, 320, 240);
     LCD_2IN_Display((UBYTE *) BlackImage);
 }
 
