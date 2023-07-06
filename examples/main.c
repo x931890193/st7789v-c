@@ -433,7 +433,8 @@ void *broadcast_demo() {
 // desktop显示
 void *desktop() {
     set_up();
-    Paint_DrawImage(gImage_desktop, 0, 0, 240, 240);
+    Paint_DrawImage(image_data_wifi, 0, 0, 32, 32);
+    LCD_2IN_Display((UBYTE *) BlackImage);
 }
 
 int main() {
