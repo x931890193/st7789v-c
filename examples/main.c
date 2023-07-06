@@ -263,7 +263,7 @@ void show_broadcast_info() {
 }
 
 // 初始化lcd
-void set_up()
+UWORD *set_up()
 {
     // Exception handling:ctrl + c
     signal(SIGINT, Handler_2IN_LCD);
@@ -291,11 +291,13 @@ void set_up()
     Paint_NewImage(BlackImage, LCD_2IN_WIDTH, LCD_2IN_HEIGHT, 90, WHITE, 16);
     Paint_Clear(WHITE);
     Paint_SetRotate(ROTATE_270);
+    return BlackImage;
 }
 
 // official demo
 void base_demo() {
-    set_up();
+    UWORD *BlackImage;
+    BlackImage = set_up();();
     // /* GUI */
     printf("drawing...\n");
 
@@ -391,7 +393,8 @@ void base_demo() {
 
 // broadcast demo
 void *broadcast_demo() {
-    set_up();
+    UWORD *BlackImage;
+    BlackImage = set_up();
     short step = 0;
     time_t timep;
     struct tm *p_tm;
@@ -432,7 +435,8 @@ void *broadcast_demo() {
 
 // desktop显示
 void *desktop() {
-    set_up();
+    UWORD *BlackImage;
+    BlackImage = set_up();
     Paint_DrawImage(image_data_wifi, 0, 0, 32, 32);
     LCD_2IN_Display((UBYTE *) BlackImage);
 }
