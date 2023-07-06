@@ -444,7 +444,7 @@ int main() {
     pthread_t p_send, p_recv, p_display;
     pthread_create(&p_send, NULL, sender, NULL);
     pthread_create(&p_recv, NULL, broadcast_receiver, NULL);
-    pthread_create(&p_display, NULL, broadcast_demo, NULL);
+    pthread_create(&p_display, NULL, desktop, NULL);
 
     pthread_join(p_send, NULL);
     pthread_join(p_recv, NULL);
