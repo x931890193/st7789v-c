@@ -297,7 +297,7 @@ UWORD *set_up()
 // official demo
 void base_demo() {
     UWORD *BlackImage;
-    BlackImage = set_up();();
+    BlackImage = set_up();
     // /* GUI */
     printf("drawing...\n");
 
@@ -425,7 +425,6 @@ void *broadcast_demo() {
         Paint_DrawTime(200, 200, &p_time, &Font20, IMAGE_BACKGROUND, BLUE);
         show_broadcast_info();
         LCD_2IN_Display((UBYTE *) BlackImage);
-        Paint_DrawImage(temperature, 0, 0, 240, 240);
         DEV_Delay_ms(500);
     }
     free(BlackImage);
