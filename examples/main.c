@@ -388,7 +388,6 @@ void base_demo() {
     /* Module Exit */
     free(BlackImage);
     BlackImage = NULL;
-    DEV_ModuleExit();
 }
 
 // broadcast demo
@@ -429,7 +428,6 @@ void *broadcast_demo() {
     }
     free(BlackImage);
     BlackImage = NULL;
-    DEV_ModuleExit();
 }
 
 // desktop显示
@@ -439,7 +437,6 @@ void *desktop() {
     Paint_DrawImage(image_data_base, 0, 0, 320, 240);
     LCD_2IN_Display((UBYTE *) BlackImage);
     free(BlackImage);
-    DEV_ModuleExit();
 }
 
 int main() {
