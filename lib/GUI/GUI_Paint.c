@@ -702,6 +702,14 @@ parameter:
 ******************************************************************************/
 void Paint_DrawImage(const unsigned char *image, UWORD xStart, UWORD yStart, UWORD W_Image, UWORD H_Image) {
     int i, j;
+    // Determine rotate change HeightMemory and WidthMemory
+    if (Paint.Rotate == ROTATE_0 || Paint.Rotate == ROTATE_180) {
+        Paint.HeightMemory = Paint.Height;
+        Paint.WidthMemory = Paint.Width;
+    } else {
+        Paint.HeightMemory = Paint.Width;
+        Paint.WidthMemory = Paint.Height;
+    }
     for (j = 0; j < H_Image; j++) {
         for (i = 0; i < W_Image; i++) {
             if (xStart + i < Paint.HeightMemory && yStart + j < Paint.WidthMemory)//Exceeded part does not display
