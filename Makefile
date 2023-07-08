@@ -57,7 +57,7 @@ ${DIR_BIN}/%.o:$(DIR_Examples_img)/%.c
 	$(CC) $(CFLAGS) -c  $< -o $@ -I $(DIR_Examples_img)
 
 ${DIR_BIN}/%.o:$(DIR_Examples_util)/%.c
-	$(CC) $(CFLAGS) -c  $< -o $@ -I $(DIR_Examples_util) -I $(DIR_GUI)
+	$(CC) $(CFLAGS) -c  $< -o $@ -I $(DIR_Config) -I $(DIR_GUI) -I $(DIR_EPD) -I $(DIR_FONTS) -I $(DIR_CJSON) -I $(DIR_Examples_img) -I $(DIR_Examples_util)
 
 clean :
 	rm $(DIR_BIN)/*.* 
