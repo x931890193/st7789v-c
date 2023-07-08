@@ -479,12 +479,13 @@ void *desktop() {
     BlackImage = set_up();
     short init_draw = 1;
     draw_time(init_draw);
-    init_draw = 0;
-    while (1) {
-        draw_time(init_draw);
-        LCD_2IN_Display((UBYTE *) BlackImage);
-        DEV_Delay_ms(100);
-    }
+    LCD_2IN_Display((UBYTE *) BlackImage);
+//    init_draw = 0;
+//    while (1) {
+//        draw_time(init_draw);
+//        LCD_2IN_Display((UBYTE *) BlackImage);
+//        DEV_Delay_ms(100);
+//    }
     free(BlackImage);
 }
 
