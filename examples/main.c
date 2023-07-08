@@ -442,7 +442,7 @@ void draw_time() {
     sec_ten = p_time->Sec / 10;
     sec_unit = p_time->Sec % 10;
     Paint_DrawImage(time_hour_min_nums[hour_ten], 38, 75, 40, 60);
-    Paint_DrawImage(time_hour_min_nums[hour_ten], 38 + 40, 75, 40, 60);
+    Paint_DrawImage(time_hour_min_nums[hour_unit], 38 + 40, 75, 40, 60);
     Paint_DrawImage(image_data_mao, 38 + 40, 75, 40, 60);
     Paint_DrawImage(time_hour_min_nums[min_ten], 38 + 80, 75, 40, 60);
     Paint_DrawImage(time_hour_min_nums[min_unit], 38 + 120, 75, 40, 60);
