@@ -431,15 +431,15 @@ void *broadcast_demo() {
 }
 
 void draw_time() {
-    PAINT_TIME *p_time;
+    PAINT_TIME p_time;
     p_time = get_time();
     UBYTE hour_ten, hour_unit, min_ten, min_unit, sec_ten, sec_unit;
-    hour_ten = p_time->Hour / 10;
-    hour_unit = p_time->Hour % 10;
-    min_ten = p_time->Min / 10;
-    min_unit = p_time->Min % 10;
-    sec_ten = p_time->Sec / 10;
-    sec_unit = p_time->Sec % 10;
+    hour_ten = p_time.Hour / 10;
+    hour_unit = p_time.Hour % 10;
+    min_ten = p_time.Min / 10;
+    min_unit = p_time.Min % 10;
+    sec_ten = p_time.Sec / 10;
+    sec_unit = p_time.Sec % 10;
     Paint_DrawImage(time_hour_min_nums[hour_ten], 38, 75, 40, 60);
     Paint_DrawImage(time_hour_min_nums[hour_unit], 38 + 40, 75, 40, 60);
     Paint_DrawImage(image_data_mao, 38 + 40, 75, 40, 60);
