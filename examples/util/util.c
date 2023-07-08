@@ -17,5 +17,6 @@ PAINT_TIME get_time() {
     p_time.Hour = p_tm->tm_hour;
     p_time.Min = p_tm->tm_min;
     p_time.Sec = p_tm->tm_sec;
+    p_time.Week = p_tm->tm_wday;
     return p_time;
 }

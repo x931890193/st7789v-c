@@ -433,13 +433,17 @@ void *broadcast_demo() {
 void draw_time() {
     PAINT_TIME p_time;
     p_time = get_time();
-    UBYTE hour_ten, hour_unit, min_ten, min_unit, sec_ten, sec_unit;
+    UBYTE mon_ten, mon_unit, hour_ten, hour_unit, min_ten, min_unit, sec_ten, sec_unit, week;
     hour_ten = p_time.Hour / 10;
     hour_unit = p_time.Hour % 10;
     min_ten = p_time.Min / 10;
     min_unit = p_time.Min % 10;
     sec_ten = p_time.Sec / 10;
     sec_unit = p_time.Sec % 10;
+    week = p_time.Week;
+    mon_ten = p_time.Month / 10;
+    mon_unit = p_time.Month % 10;
+
     Paint_DrawImage(image_data_mao, 38 + (40 * 1) + 1 + 30, 75, 40, 60);
     Paint_DrawImage(time_hour_min_nums[hour_ten], 38, 75, 40, 60);
     Paint_DrawImage(time_hour_min_nums[hour_unit], 38 + (40 * 1) + 1, 75, 40, 60);
@@ -449,6 +453,8 @@ void draw_time() {
 
     Paint_DrawImage(time_sec_mu_nums[sec_ten], 38 + 180, 75 + 30, 18, 24);
     Paint_DrawImage(time_sec_mu_nums[sec_unit], 38 + 200, 75 + 30, 18, 24);
+
+    Paint_DrawImage(time_week_nums[week], 0, 240 - 85 + 30, 18, 24);
 }
 // desktop显示
 void *desktop() {

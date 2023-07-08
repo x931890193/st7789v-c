@@ -132,7 +132,8 @@ typedef enum {
  * Custom structure of a time attribute
 **/
 typedef struct {
-    UWORD Year;  //0000
+    UWORD  Year;  //0000
+    UBYTE  Week; // 0 - 6
     UBYTE  Month; //1 - 12
     UBYTE  Day;   //1 - 30
     UBYTE  Hour;  //0 - 23

@@ -62,7 +62,7 @@ uint8_t *time_sec_mu_nums[10] = {image_data_l0c, image_data_l1c, image_data_l2c,
                                       image_data_l4c, image_data_l5c, image_data_l6c, image_data_l7c,
                                       image_data_l8c, image_data_l9c}; // 0-9
 
-uint8_t *week_day[7] = {image_data_sun, image_data_mon, image_data_tues, image_data_wed,
+uint8_t *time_week_nums[7] = {image_data_sun, image_data_mon, image_data_tues, image_data_wed,
                               image_data_thues, image_data_fri, image_data_sat}; // 0-6
 
 #endif //ST7789V_C_IMAGE_BASE_H
