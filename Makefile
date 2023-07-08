@@ -53,6 +53,12 @@ ${DIR_BIN}/%.o:$(DIR_Config)/%.c
 ${DIR_BIN}/%.o:$(DIR_CJSON)/%.c
 	$(CC) $(CFLAGS) -c  $< -o $@ -I $(DIR_CJSON)
 
+${DIR_BIN}/%.o:$(DIR_Examples_img)/%.c
+	$(CC) $(CFLAGS) -c  $< -o $@ -I $(DIR_Examples_img)
+
+${DIR_BIN}/%.o:$(DIR_Examples_util)/%.c
+	$(CC) $(CFLAGS) -c  $< -o $@ -I $(DIR_Examples_util)
+
 clean :
 	rm $(DIR_BIN)/*.* 
 	rm $(TARGET) 
