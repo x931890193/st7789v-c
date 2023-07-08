@@ -1,8 +1,9 @@
 //
 // Created by sato on 2023/7/8.
 //
-#include "util.h"
 #include <time.h>
+#include "util.h"
+#include "GUI_Paint.h"
 
 time_t timep;
 struct tm *p_tm;

@@ -57,7 +57,7 @@ ${DIR_BIN}/%.o:$(DIR_Examples_img)/%.c
 	$(CC) $(CFLAGS) -c  $< -o $@ -I $(DIR_Examples_img)
 
 ${DIR_BIN}/%.o:$(DIR_Examples_util)/%.c
-	$(CC) $(CFLAGS) -c  $< -o $@ -I $(DIR_Examples_util)
+	$(CC) $(CFLAGS) -c  $< -o $@ -I $(DIR_Examples_util) -I $(DIR_GUI)
 
 clean :
 	rm $(DIR_BIN)/*.* 

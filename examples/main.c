@@ -15,7 +15,6 @@
 
 #include "DEV_Config.h"
 #include "LCD_2inch.h"
-#include "GUI_Paint.h"
 #include "GUI_BMP.h"
 #include "GUI_Paint.h"
 #include "fonts.h"
