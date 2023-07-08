@@ -453,7 +453,6 @@ void draw_time(short init_draw) {
         cross_min = 1;
     }
     if (init_draw || cross_min) {
-        printf("draw min\n")
         Paint_ClearWindow(38, 38 + (40 * 1) + 1 + 40, 75, 75 + 60, WHITE);
         Paint_DrawImage(time_hour_min_nums[hour_ten], 38, 75, 40, 60);
         Paint_DrawImage(time_hour_min_nums[hour_unit], 38 + (40 * 1) + 1, 75, 40, 60);
@@ -462,7 +461,6 @@ void draw_time(short init_draw) {
         }
     }
     if (init_draw || cross_hour) {
-        printf("draw hour\n")
         Paint_ClearWindow(38 + (40 * 1) + 1 + 30 + 30, 75, 38 + (40 * 1) + 1 + 30 + 30 + 40, 75 + 60, WHITE
         Paint_DrawImage(time_hour_min_nums[min_ten],  38 + (40 * 1) + 1 + 30 + 30, 75, 40, 60);
         Paint_DrawImage(time_hour_min_nums[min_unit], 38 + (40 * 1) + 1 + 30 + 30 + 40, 75, 40, 60);
