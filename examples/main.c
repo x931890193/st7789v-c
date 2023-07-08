@@ -446,8 +446,8 @@ void draw_time() {
     Paint_DrawImage(image_data_mao, 38 + 40, 75, 40, 60);
     Paint_DrawImage(time_hour_min_nums[min_ten], 38 + 80, 75, 40, 60);
     Paint_DrawImage(time_hour_min_nums[min_unit], 38 + 120, 75, 40, 60);
-    Paint_DrawImage(time_sec_mu_nums[min_ten], 38 + 120, 75 + 30, 18, 24);
-    Paint_DrawImage(time_sec_mu_nums[min_unit], 38 + 138, 75 + 30, 18, 24);
+    Paint_DrawImage(time_sec_mu_nums[sec_ten], 38 + 160, 75 + 30, 18, 24);
+    Paint_DrawImage(time_sec_mu_nums[sec_unit], 38 + 180, 75 + 30, 18, 24);
     Paint_DrawImage(image_data_base, 0, 0, 320, 240);
 }
 // desktop显示

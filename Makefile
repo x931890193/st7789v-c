@@ -11,7 +11,7 @@ MSG = -g -O0 -Wall
 CFLAGS += $(MSG) $(DEBUG)
 
 
-OBJ_C = $(wildcard ${DIR_EPD}/*.c ${DIR_Config}/*.c ${DIR_GUI}/*.c ${DIR_Examples}/*.c ${DIR_FONTS}/*.c ${DIR_CJSON}/*.c)
+OBJ_C = $(wildcard ${DIR_EPD}/*.c ${DIR_Config}/*.c ${DIR_GUI}/*.c ${DIR_Examples}/*.c ${DIR_FONTS}/*.c ${DIR_CJSON}/*.c ${DIR_Examples}/*/*.c)
 OBJ_O = $(patsubst %.c,${DIR_BIN}/%.o,$(notdir ${OBJ_C}))
 
 TARGET = main
