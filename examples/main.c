@@ -460,14 +460,11 @@ void draw_time(short init_draw) {
     if (init_draw || cross_hour) {
         Paint_DrawImage(time_hour_min_nums[min_ten],  38 + (40 * 1) + 1 + 30 + 30, 75, 40, 60);
         Paint_DrawImage(time_hour_min_nums[min_unit], 38 + (40 * 1) + 1 + 30 + 30 + 40, 75, 40, 60);
-
+        cross_day = 1;
     }
     if (init_draw || cross_day) {
         Paint_DrawImage(time_week_nums[week], 0, 240 - 38, 85, 38);
     }
-    cross_min = 0;
-    cross_hour = 0;
-    cross_day = 0;
     Paint_DrawImage(time_sec_mu_nums[sec_ten], 38 + 180 + 10, 75 + 30, 18, 24);
     Paint_DrawImage(time_sec_mu_nums[sec_unit], 38 + 200 + 10, 75 + 30, 18, 24);
 
