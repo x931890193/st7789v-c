@@ -20,8 +20,8 @@
 #include "GUI_Paint.h"
 #include "fonts.h"
 #include "cjson.h"
-#include "./img/img.h"
-#include "./util/util.h"
+#include "img.h"
+#include "util.h"
 
 #define BROADCAST_ADDR "255.255.255.255"
 #define BROADCAST_PORT 4000
