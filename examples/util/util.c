@@ -6,9 +6,9 @@
 
 time_t timep;
 struct tm *p_tm;
-PAINT_TIME *p_time;
 
 PAINT_TIME *get_time() {
+    PAINT_TIME p_time;
     time((time_t * ) & timep);
     p_tm = localtime((time_t * ) & timep);
     p_time.Year = 1900 + p_tm->tm_year;
@@ -17,5 +17,5 @@ PAINT_TIME *get_time() {
     p_time.Hour = p_tm->tm_hour;
     p_time.Min = p_tm->tm_min;
     p_time.Sec = p_tm->tm_sec;
-    return p_time;
+    return &p_time;
 }
