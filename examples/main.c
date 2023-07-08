@@ -21,7 +21,7 @@
 #include "fonts.h"
 #include "cjson.h"
 #include "./img/img.h"
-#include "util.h"
+#include "./util/util.h
 
 #define BROADCAST_ADDR "255.255.255.255"
 #define BROADCAST_PORT 4000
