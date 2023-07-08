@@ -433,9 +433,9 @@ void *broadcast_demo() {
 void draw_time(short init_draw) {
     PAINT_TIME p_time;
     p_time = get_time();
-    short cross_min;
-    short cross_hour;
-    short cross_day;
+    short cross_min = 0;
+    short cross_hour = 0;
+    short cross_day = 0;
     UBYTE mon_ten, mon_unit, hour_ten, hour_unit, min_ten, min_unit, sec_ten, sec_unit, week;
     hour_ten = p_time.Hour / 10;
     hour_unit = p_time.Hour % 10;
@@ -453,6 +453,8 @@ void draw_time(short init_draw) {
         cross_min = 1;
     }
     if (init_draw || cross_min) {
+        printf("draw min\n")
+        Paint_ClearWindow(38, 38 + (40 * 1) + 1 + 40, 75, 75 + 60, WHITE);
         Paint_DrawImage(time_hour_min_nums[hour_ten], 38, 75, 40, 60);
         Paint_DrawImage(time_hour_min_nums[hour_unit], 38 + (40 * 1) + 1, 75, 40, 60);
         if (p_time.Min == 0) {
@@ -460,6 +462,8 @@ void draw_time(short init_draw) {
         }
     }
     if (init_draw || cross_hour) {
+        printf("draw hour\n")
+        Paint_ClearWindow(38 + (40 * 1) + 1 + 30 + 30, 75, 38 + (40 * 1) + 1 + 30 + 30 + 40, 75 + 60, WHITE
         Paint_DrawImage(time_hour_min_nums[min_ten],  38 + (40 * 1) + 1 + 30 + 30, 75, 40, 60);
         Paint_DrawImage(time_hour_min_nums[min_unit], 38 + (40 * 1) + 1 + 30 + 30 + 40, 75, 40, 60);
         if (p_time.Hour == 0) {
@@ -467,11 +471,13 @@ void draw_time(short init_draw) {
         }
     }
     if (init_draw || cross_day) {
+        Paint_ClearWindow(0, 0 + 85, 240 - 38, 240 - 38 + 38,  WHITE);
         Paint_DrawImage(time_week_nums[week], 0, 240 - 38, 85, 38);
     }
+    // sec
     Paint_DrawImage(time_sec_mu_nums[sec_ten], 38 + 180 + 10, 75 + 30, 18, 24);
     Paint_DrawImage(time_sec_mu_nums[sec_unit], 38 + 200 + 10, 75 + 30, 18, 24);
-
+    Paint_ClearWindow(38 + 180 + 10, 38 + 180 + 10 + 36, 75 + 30, 75 + 30 + 24,  WHITE);
 }
 // desktop显示
 void *desktop() {
@@ -481,7 +487,6 @@ void *desktop() {
     draw_time(init_draw);
     init_draw = 0;
     while (1) {
-        Paint_Clear(WHITE);
         draw_time(init_draw);
         LCD_2IN_Display((UBYTE *) BlackImage);
         DEV_Delay_ms(100);
