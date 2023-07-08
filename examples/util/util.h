@@ -2,7 +2,7 @@
 // Created by sato on 2023/7/8.
 //
 
-
+#include "GUI_Paint.h"
 
 #ifndef ST7789V_C_UTIL_H
 #define ST7789V_C_UTIL_H

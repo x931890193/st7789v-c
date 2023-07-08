@@ -3,7 +3,6 @@
 //
 #include <time.h>
 #include "util.h"
-#include "GUI_Paint.h"
 
 time_t timep;
 struct tm *p_tm;
