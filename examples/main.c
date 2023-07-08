@@ -449,18 +449,22 @@ void draw_time(short init_draw) {
     if (init_draw) {
         Paint_DrawImage(image_data_mao, 38 + (40 * 1) + 1 + 30, 75, 40, 60);
     }
-    if p_time.sec == 0 {
+    if (p_time.sec == 0) {
         cross_min = 1;
     }
     if (init_draw || cross_min) {
         Paint_DrawImage(time_hour_min_nums[hour_ten], 38, 75, 40, 60);
         Paint_DrawImage(time_hour_min_nums[hour_unit], 38 + (40 * 1) + 1, 75, 40, 60);
-        cross_hour = 1;
+        if (p_time.Min == 0) {
+            cross_hour = 1;
+        }
     }
     if (init_draw || cross_hour) {
         Paint_DrawImage(time_hour_min_nums[min_ten],  38 + (40 * 1) + 1 + 30 + 30, 75, 40, 60);
         Paint_DrawImage(time_hour_min_nums[min_unit], 38 + (40 * 1) + 1 + 30 + 30 + 40, 75, 40, 60);
-        cross_day = 1;
+        if (p_time.Hour == 0) {
+            cross_day = 1;
+        }
     }
     if (init_draw || cross_day) {
         Paint_DrawImage(time_week_nums[week], 0, 240 - 38, 85, 38);
