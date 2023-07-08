@@ -21,6 +21,7 @@
 #include "fonts.h"
 #include "cjson.h"
 #include "./img/img.h"
+#include "util.h"
 
 #define BROADCAST_ADDR "255.255.255.255"
 #define BROADCAST_PORT 4000
@@ -430,11 +431,30 @@ void *broadcast_demo() {
     BlackImage = NULL;
 }
 
+void draw_time() {
+    PAINT_TIME *p_time;
+    p_time = get_time();
+    UBYTE hour_ten, hour_unit, min_ten, min_unit, sec_ten, sec_unit;
+    hour_ten = p_time->Hour / 10;
+    hour_unit = p_time->Hour % 10;
+    min_ten = p_time->Min / 10;
+    min_unit = p_time->Min % 10;
+    sec_ten = p_time->Sec / 10;
+    sec_unit = p_time->Sec % 10;
+    Paint_DrawImage(time_hour_min_nums[hour_ten], 38, 75, 40, 60);
+    Paint_DrawImage(time_hour_min_nums[hour_ten], 38 + 40, 75, 40, 60);
+    Paint_DrawImage(image_data_mao, 38 + 40, 75, 40, 60);
+    Paint_DrawImage(time_hour_min_nums[min_ten], 38 + 80, 75, 40, 60);
+    Paint_DrawImage(time_hour_min_nums[min_unit], 38 + 120, 75, 40, 60);
+    Paint_DrawImage(time_sec_mu_nums[min_ten], 38 + 120, 75 + 30, 18, 24);
+    Paint_DrawImage(time_sec_mu_nums[min_unit], 38 + 138, 75 + 30, 18, 24);
+    Paint_DrawImage(image_data_base, 0, 0, 320, 240);
+}
 // desktop显示
 void *desktop() {
     UWORD *BlackImage;
     BlackImage = set_up();
-    Paint_DrawImage(image_data_base, 0, 0, 320, 240);
+    draw_time();
     LCD_2IN_Display((UBYTE *) BlackImage);
     free(BlackImage);
 }
