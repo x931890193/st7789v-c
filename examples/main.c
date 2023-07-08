@@ -445,8 +445,10 @@ void draw_time() {
     Paint_DrawImage(image_data_mao, 38 + (40 * 1) + 1 + 20, 75, 40, 60);
     Paint_DrawImage(time_hour_min_nums[hour_ten], 38, 75, 40, 60);
     Paint_DrawImage(time_hour_min_nums[hour_unit], 38 + (40 * 1) + 1, 75, 40, 60);
-    Paint_DrawImage(time_hour_min_nums[min_ten],  38 + (40 * 1) + 1 + 20 + 10, 75, 40, 60);
-    Paint_DrawImage(time_hour_min_nums[min_unit], 38 + (40 * 1) + 1 + 20 + 10 + 40, 75, 40, 60);
+
+    Paint_DrawImage(time_hour_min_nums[min_ten],  38 + (40 * 1) + 1 + 20 + 20, 75, 40, 60);
+    Paint_DrawImage(time_hour_min_nums[min_unit], 38 + (40 * 1) + 1 + 20 + 20 + 40, 75, 40, 60);
+
     Paint_DrawImage(time_sec_mu_nums[sec_ten], 38 + 180, 75 + 30, 18, 24);
     Paint_DrawImage(time_sec_mu_nums[sec_unit], 38 + 200, 75 + 30, 18, 24);
 }
