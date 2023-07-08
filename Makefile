@@ -3,6 +3,9 @@ DIR_EPD      = ./lib/LCD
 DIR_FONTS    = ./lib/Fonts
 DIR_GUI      = ./lib/GUI
 DIR_Examples = ./examples
+DIR_Examples_img = ./examples/img
+DIR_Examples_util = ./examples/util
+
 DIR_CJSON    = ./lib/cjson
 DIR_BIN      = ./bin
 
@@ -11,7 +14,7 @@ MSG = -g -O0 -Wall
 CFLAGS += $(MSG) $(DEBUG)
 
 
-OBJ_C = $(wildcard ${DIR_EPD}/*.c ${DIR_Config}/*.c ${DIR_GUI}/*.c ${DIR_Examples}/*.c ${DIR_FONTS}/*.c ${DIR_CJSON}/*.c ${DIR_Examples}/*/*.c)
+OBJ_C = $(wildcard ${DIR_EPD}/*.c ${DIR_Config}/*.c ${DIR_GUI}/*.c ${DIR_Examples}/*.c ${DIR_FONTS}/*.c ${DIR_CJSON}/*.c ${DIR_Examples_img}/*.c ${DIR_Examples_util}/*.c)
 OBJ_O = $(patsubst %.c,${DIR_BIN}/%.o,$(notdir ${OBJ_C}))
 
 TARGET = main
@@ -33,7 +36,7 @@ ${TARGET}:${OBJ_O}
 	$(CC) $(CFLAGS) $(OBJ_O) -o $@ $(LIB)
 
 ${DIR_BIN}/%.o:$(DIR_Examples)/%.c
-	$(CC) $(CFLAGS) -c  $< -o $@ -I $(DIR_Config) -I $(DIR_GUI) -I $(DIR_EPD) -I $(DIR_FONTS) -I $(DIR_CJSON)
+	$(CC) $(CFLAGS) -c  $< -o $@ -I $(DIR_Config) -I $(DIR_GUI) -I $(DIR_EPD) -I $(DIR_FONTS) -I $(DIR_CJSON) -I $(DIR_Examples_img) -I $(DIR_Examples_util)
 
 ${DIR_BIN}/%.o:$(DIR_EPD)/%.c
 	$(CC) $(CFLAGS) -c  $< -o $@ -I $(DIR_Config)
