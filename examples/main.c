@@ -449,7 +449,7 @@ void draw_time(short init_draw) {
     if (init_draw) {
         Paint_DrawImage(image_data_mao, 38 + (40 * 1) + 1 + 30, 75, 40, 60);
     }
-    if (p_time.sec == 0) {
+    if (p_time.Sec == 0) {
         cross_min = 1;
     }
     if (init_draw || cross_min) {
