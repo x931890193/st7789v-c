@@ -455,7 +455,11 @@ void *desktop() {
     UWORD *BlackImage;
     BlackImage = set_up();
     draw_time();
-    LCD_2IN_Display((UBYTE *) BlackImage);
+    while (1) {
+        Paint_Clear(WHITE);
+        draw_time();
+        LCD_2IN_Display((UBYTE *) BlackImage);
+    }
     free(BlackImage);
 }
 
