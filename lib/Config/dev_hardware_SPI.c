@@ -109,7 +109,8 @@ void DEV_HARDWARE_SPI_begin(char *SPI_device) {
     ioctl(hardware_SPI.fd, SPI_IOC_RD_MODE32, &hardware_SPI.mode);
     DEV_HARDWARE_SPI_Debug("mode = %d\r\n", hardware_SPI.mode);
 
-    DEV_HARDWARE_SPI_setSpeed(10000000);
+//    DEV_HARDWARE_SPI_setSpeed(10000000);
+    DEV_HARDWARE_SPI_setSpeed(8250000);// for version five2
     DEV_HARDWARE_SPI_SetDataInterval(0);
 #endif
 }
