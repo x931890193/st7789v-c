@@ -457,6 +457,9 @@ void draw_time() {
     // sec
     Paint_DrawImage(time_sec_mu_nums[sec_ten], 38 + 180 + 10, 75 + 30, 18, 24);
     Paint_DrawImage(time_sec_mu_nums[sec_unit], 38 + 200 + 10, 75 + 30, 18, 24);
+
+    // week
+    Paint_DrawImage(time_week_nums[week], 0, 240 - 38, 85, 38);
 }
 // desktop显示
 void *desktop() {
