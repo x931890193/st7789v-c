@@ -442,12 +442,12 @@ void draw_time() {
     sec_unit = p_time.Sec % 10;
     printf("hour_ten:%d,hour_unit:%d,min_ten:%d,min_unit:%d,sec_ten:%d,sec_unit:%d\n", hour_ten, hour_unit, min_ten,
            min_unit, sec_ten, sec_unit);
-    Paint_DrawImage(image_data_mao, 38 + (40 * 1) + 1 + 20, 75, 40, 60);
+    Paint_DrawImage(image_data_mao, 38 + (40 * 1) + 1 + 30, 75, 40, 60);
     Paint_DrawImage(time_hour_min_nums[hour_ten], 38, 75, 40, 60);
     Paint_DrawImage(time_hour_min_nums[hour_unit], 38 + (40 * 1) + 1, 75, 40, 60);
 
-    Paint_DrawImage(time_hour_min_nums[min_ten],  38 + (40 * 1) + 1 + 20 + 30, 75, 40, 60);
-    Paint_DrawImage(time_hour_min_nums[min_unit], 38 + (40 * 1) + 1 + 20 + 30 + 40, 75, 40, 60);
+    Paint_DrawImage(time_hour_min_nums[min_ten],  38 + (40 * 1) + 1 + 30 + 35, 75, 40, 60);
+    Paint_DrawImage(time_hour_min_nums[min_unit], 38 + (40 * 1) + 1 + 30 + 35 + 40, 75, 40, 60);
 
     Paint_DrawImage(time_sec_mu_nums[sec_ten], 38 + 180, 75 + 30, 18, 24);
     Paint_DrawImage(time_sec_mu_nums[sec_unit], 38 + 200, 75 + 30, 18, 24);
