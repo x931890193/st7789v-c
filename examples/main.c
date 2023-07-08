@@ -480,6 +480,7 @@ void *desktop() {
     short init_draw = 1;
     draw_time(init_draw);
     LCD_2IN_Display((UBYTE *) BlackImage);
+    init_draw = 0;
     draw_time(init_draw);
     LCD_2IN_Display((UBYTE *) BlackImage);
     draw_time(init_draw);
