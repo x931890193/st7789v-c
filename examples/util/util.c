@@ -11,7 +11,6 @@ PAINT_TIME get_time() {
     struct tm *p_tm;
     time((time_t * ) & timep);
     p_tm = localtime((time_t * ) & timep);
-    printf("%p\n", p_tm);
     p_time.Year = 1900 + p_tm->tm_year;
     p_time.Month = p_tm->tm_mon + 1;
     p_time.Day = p_tm->tm_mday;
