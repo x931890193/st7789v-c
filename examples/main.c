@@ -442,13 +442,13 @@ void draw_time() {
     sec_unit = p_time.Sec % 10;
     printf("hour_ten:%d,hour_unit:%d,min_ten:%d,min_unit:%d,sec_ten:%d,sec_unit:%d\n", hour_ten, hour_unit, min_ten,
            min_unit, sec_ten, sec_unit);
-    Paint_DrawImage(time_hour_min_nums[hour_ten], 38, 75, 40, 60);
-    Paint_DrawImage(time_hour_min_nums[hour_unit], 38 + 40, 75, 40, 60);
+    Paint_DrawImage(time_hour_min_nums[hour_ten ? hour_ten - 1: hour_ten], 38, 75, 40, 60);
+    Paint_DrawImage(time_hour_min_nums[hour_unit ? hour_unit - 1: hour_unit], 38 + 40, 75, 40, 60);
     Paint_DrawImage(image_data_mao, 38 + 40, 75, 40, 60);
-    Paint_DrawImage(time_hour_min_nums[min_ten], 38 + 80, 75, 40, 60);
-    Paint_DrawImage(time_hour_min_nums[min_unit], 38 + 120, 75, 40, 60);
-    Paint_DrawImage(time_sec_mu_nums[sec_ten], 38 + 160, 75 + 30, 18, 24);
-    Paint_DrawImage(time_sec_mu_nums[sec_unit], 38 + 180, 75 + 30, 18, 24);
+    Paint_DrawImage(time_hour_min_nums[min_ten ? min_ten - 1: min_ten], 38 + 80, 75, 40, 60);
+    Paint_DrawImage(time_hour_min_nums[min_unit ? min_unit - 1: min_unit], 38 + 120, 75, 40, 60);
+    Paint_DrawImage(time_sec_mu_nums[sec_ten ? sec_ten - 1: sec_ten], 38 + 160, 75 + 30, 18, 24);
+    Paint_DrawImage(time_sec_mu_nums[sec_unit ? sec_unit - 1: sec_unit], 38 + 180, 75 + 30, 18, 24);
 }
 // desktop显示
 void *desktop() {
