@@ -4,11 +4,11 @@
 #include <time.h>
 #include "util.h"
 
-time_t timep;
-struct tm *p_tm;
 
 PAINT_TIME get_time() {
     PAINT_TIME p_time;
+    time_t timep;
+    struct tm *p_tm;
     time((time_t * ) & timep);
     p_tm = localtime((time_t * ) & timep);
     printf("%p\n", p_tm);
