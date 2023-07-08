@@ -176,7 +176,8 @@ UBYTE DEV_ModuleInit(void) {
         DEBUG("set wiringPi lib success  !!! \r\n");
     }
     DEV_GPIO_Init();
-    wiringPiSPISetup(0,10000000);
+//    wiringPiSPISetup(0,10000000);
+    wiringPiSPISetup(0,8250000);
     pinMode (LCD_BL, PWM_OUTPUT);
     pwmWrite(LCD_BL,512);
 #elif USE_DEV_LIB
