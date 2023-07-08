@@ -461,7 +461,7 @@ void draw_time(short init_draw) {
         }
     }
     if (init_draw || cross_hour) {
-        Paint_ClearWindow(38 + (40 * 1) + 1 + 30 + 30, 75, 38 + (40 * 1) + 1 + 30 + 30 + 40, 75 + 60, WHITE
+        Paint_ClearWindow(38 + (40 * 1) + 1 + 30 + 30, 75, 38 + (40 * 1) + 1 + 30 + 30 + 40, 75 + 60, WHITE);
         Paint_DrawImage(time_hour_min_nums[min_ten],  38 + (40 * 1) + 1 + 30 + 30, 75, 40, 60);
         Paint_DrawImage(time_hour_min_nums[min_unit], 38 + (40 * 1) + 1 + 30 + 30 + 40, 75, 40, 60);
         if (p_time.Hour == 0) {
