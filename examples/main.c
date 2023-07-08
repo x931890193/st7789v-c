@@ -451,8 +451,8 @@ void draw_time() {
     Paint_DrawImage(time_hour_min_nums[min_ten],  38 + (40 * 1) + 1 + 30 + 30, 75, 40, 60);
     Paint_DrawImage(time_hour_min_nums[min_unit], 38 + (40 * 1) + 1 + 30 + 30 + 40, 75, 40, 60);
 
-    Paint_DrawImage(time_sec_mu_nums[sec_ten], 38 + 180, 75 + 30, 18, 24);
-    Paint_DrawImage(time_sec_mu_nums[sec_unit], 38 + 200, 75 + 30, 18, 24);
+    Paint_DrawImage(time_sec_mu_nums[sec_ten], 38 + 180 + 10, 75 + 30, 18, 24);
+    Paint_DrawImage(time_sec_mu_nums[sec_unit], 38 + 200 + 10, 75 + 30, 18, 24);
 
     Paint_DrawImage(time_week_nums[week], 0, 240 - 38, 85, 38);
 }
@@ -465,7 +465,7 @@ void *desktop() {
         Paint_Clear(WHITE);
         draw_time();
         LCD_2IN_Display((UBYTE *) BlackImage);
-        DEV_Delay_ms(300);
+//        DEV_Delay_ms(300);
     }
     free(BlackImage);
 }
