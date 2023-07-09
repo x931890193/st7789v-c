@@ -129,6 +129,47 @@ int http_create_socket(char *ip) {
 //    char *body; //响应体
 //} http_response;
 
+// http_parse_response
+http_response *http_parse_response(char *response) {
+    http_response *http_response1 = (http_response *) malloc(sizeof(http_response));
+    char *pos = strstr(response, "\r\n");
+    if (pos) {
+        *pos = '\0';
+        char *version = strtok(response, " ");
+        char *status_code = strtok(NULL, " ");
+        char *status_text = strtok(NULL, " ");
+        strcpy(http_response1->version, version);
+        http_response1->status_code = atoi(status_code);
+        strcpy(http_response1->status_text, status_text);
+    }
+
+    //解析响应头
+    char *next = strstr(pos + 2, "\r\n");
+    if (next) {
+        *next = '\0';
+        char *line = pos + 2;
+        while (strlen(line) > 0) {
+            http_header *header = (http_header *) malloc(sizeof(http_header));
+            pos = strstr(line, ": ");
+            if (pos) {
+                *pos = '\0';
+                strcpy(header->key, line);
+                strcpy(header->value, pos + 2);
+                http_response1->headers[http_response1->header_count++] = header;
+            }
+            line = next + 2;
+            next = strstr(line, "\r\n");
+            if (next) {
+                *next = '\0';
+            }
+        }
+    }
+
+    //解析响应体
+    http_response1->body = next + 2;
+
+    return http_response1;
+}
 
 // 定义get请求方法，使用http_request结构体，返回http_response，模仿python的requests库
 http_response *http_request(char *method, char *url, char *body, char *headers) {
@@ -220,29 +261,14 @@ http_response *http_request(char *method, char *url, char *body, char *headers) 
         result = realloc(result, strlen(result) + size + 1);
         strncat(result, buffer, size);
     }
-    // 6.构造上面定义的http_response
-    http_response *response = malloc(sizeof(http_response));
-    memset(response, 0x00, sizeof(http_response));
-    //6.1 解析响应行
-    char *line = strsep(&result, "\r\n");
-    sscanf(line, "%s %d %s", response->version, &response->status_code, response->status_text);
-    //6.2 解析响应头
-    response->header_count = 0;
-//    response->headers = malloc(sizeof(http_header) * MAX_HEADERS);
-    while (1) {
-        line = strsep(&result, "\r\n");
-        printf("line: %s\n", line);
-        if (line == NULL || strlen(line) == 0) {
-            break;
-        }
-        char *key = strsep(&line, ":");
-        char *value = line + 1;
-        response->headers[response->header_count]->key = key;
-        response->headers[response->header_count]->value = value;
-        response->header_count++;
-    }
-
-
+    // 解析result 字符串
+    http_response *response = http_parse_response(result);
+    // 释放内存
+    free(result);
+    free(ip);
+    free(hostname);
+    free(resource);
+    close(sockfd);
     return response;
 }
 
