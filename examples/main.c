@@ -479,10 +479,10 @@ void get_weather_info(char *appid, char *app_secret) {
     // 拼接URL和参数
     char url[100];
     sprintf(url, "%s/free/day?appid=%s&appsecret=%s&unescape=1", weather_host, appid, app_secret);
-    http_response *result = http_get(url, NULL, NULL);
-    printf("result: %s\n", result.body);
-    printf("status: %d\n", result.status);
-    printf("headers: %s\n", result.headers);
+    http_response *result = http_get(url, NULL);
+    printf("result: %s\n", result->body);
+    printf("status: %d\n", result->status);
+    printf("headers: %s\n", result->headers);
     cJSON *json = cJSON_Parse(result);
     cJSON *wea = cJSON_GetObjectItem(json, "wea");
     cJSON *wea_img = cJSON_GetObjectItem(json, "wea_img");
