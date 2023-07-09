@@ -478,8 +478,9 @@ void draw_time() {
 void get_weather_info(char *appid, char *app_secret) {
     // 拼接URL和参数
     char source[100];
-    sprintf(source, "/free/day?appid=%s&appsecret=%s", appid, app_secret);
+    sprintf(source, "/free/day?appid=%s&appsecret=%s&unescape=1", appid, app_secret);
     char *result = http_send_request(weather_host, source);
+    printf("result: %s\n", result);
     cJSON *json = cJSON_Parse(result);
     cJSON *wea = cJSON_GetObjectItem(json, "wea");
     cJSON *wea_img = cJSON_GetObjectItem(json, "wea_img");
