@@ -118,6 +118,18 @@ int http_create_socket(char *ip) {
     return sockfd;
 }
 
+
+// 定义http_response结构体
+typedef struct {
+    char version[16]; //http版本号
+    int status_code; //状态码
+    char status_text[16]; //状态码描述
+    http_header *headers; //响应头
+    int header_count; //响应头数量
+    char *body; //响应体
+} http_response;
+
+
 // 定义get请求方法，使用http_request结构体，返回http_response，模仿python的requests库
 http_response *http_request(char *method, char *url, char *body, char *headers) {
     //1.解析url
@@ -228,28 +240,28 @@ http_response *http_request(char *method, char *url, char *body, char *headers) 
                 if (strcmp(key, "\0") == 0) {
                     break;
                 }
-                response->header_count++;
-                response->headers = (http_header *) realloc(response->headers,
-                                                            sizeof(http_header) * response->header_count);
-                response->headers[response->header_count - 1].key = key;
-                response->headers[response->header_count - 1].value = value;
-
+                printf("%s: %s\n", key, value);
+                free(key);
+                free(value);
             }
             //8.解析http响应体
             if (content_length != NULL) {
                 response->body = (char *) malloc(sizeof(char) * (atoi(content_length) + 1));
                 memset(response->body, 0, sizeof(char) * (atoi(content_length) + 1));
-                recv(sockfd, response->body, atoi(content_length), 0);
+                pos = response->body;
+                int len = atoi(content_length);
+                while (len > 0) {
+                    ssize_t size = recv(sockfd, pos, len, 0);
+                    pos += size;
+                    len -= size;
+                }
+                printf("body: %s\n", response->body);
             }
             //9.关闭socket
             close(sockfd);
             //10.返回http响应
             return response;
 
-        } else {
-            printf("sockfd error\n");
-            return NULL;
-        }
     }
 }
 
