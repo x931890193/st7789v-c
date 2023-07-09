@@ -251,6 +251,7 @@ http_response *http_request(char *method, char *url, char *body, char *headers) 
             return NULL;
         }
     }
+}
 
 
 // 定义get请求方法
