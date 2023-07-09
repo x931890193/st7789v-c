@@ -124,16 +124,18 @@ http_response *http_request(char *method, char *url, char *body, char *headers) 
     char *hostname, *resource;
     int port;
     http_parse_url(url, &hostname, &resource, &port);
-
+    printf("hostname: %s, resource: %s, port: %d\n", hostname, resource, port)
     //2.通过DNS将域名转为 IP
     char *ip = host_to_ip(hostname);
     if (ip == NULL) {
+        printf("DNS解析失败\n")
         return NULL;
     }
 
     //3.创建socket
     int sockfd = http_create_socket(ip);
     if (sockfd < 0) {
+        printf("创建socket失败\n")
         return NULL;
     }
 
@@ -155,6 +157,7 @@ http_response *http_request(char *method, char *url, char *body, char *headers) 
     //5.发送http请求
     ssize_t size = send(sockfd, buffer, strlen(buffer), 0);
     if (size < 0) {
+        printf("发送http请求失败\n")
         return NULL;
     }
 
@@ -168,10 +171,12 @@ http_response *http_request(char *method, char *url, char *body, char *headers) 
     char status_line[BUFFER_SIZE];
     size = read(sockfd, status_line, BUFFER_SIZE);
     if (size < 0) {
+        printf("读取响应行失败\n")
         return NULL;
     }
     char *pos = strstr(status_line, " ");
     if (pos == NULL) {
+        printf("响应行格式错误\n")
         return NULL;
     }
     *pos = '\0';
@@ -205,6 +210,7 @@ http_response *http_request(char *method, char *url, char *body, char *headers) 
     // 7.关闭socket
     close(sockfd);
     // 8.返回响应
+    printf("response->status_code: %d\n", response->status_code);
     return response;
 }
 
