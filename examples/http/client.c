@@ -195,7 +195,6 @@ http_response *http_request(char *method, char *url, char *body, char *headers) 
         printf("发送http请求失败\n");
         return NULL;
     }
-    // 用select实现多路复用IO，循环检测是否有可读事件到来，从而进行recv, 构造上面定义的http_response
     //5.用select实现多路复用IO，循环检测是否有可读事件到来，从而进行recv
     fd_set fdread; // 可读fd的集合
     FD_ZERO(&fdread); //清零
@@ -208,38 +207,32 @@ http_response *http_request(char *method, char *url, char *body, char *headers) 
 
     char *result = malloc(sizeof(int));
     memset(result, 0x00, sizeof(int));
-    while(1)
-    {
-        //第一参数：是一个整数值，是指集合中所有文件描述符的范围，即所有文件描述符的最大值加1
-        //第二参数：可读文件描述符的集合[in/out]
-        //第三参数：可写文件描述符的集合[in/out]
-        //第四参数：出现错误文件描述符的集合[in/out]
-        //第五参数：轮询的时间
-        //返回值: 成功返回发生变化的文件描述符的个数
-        //0：等待超时，没有可读写或错误的文件
-        //失败返回-1, 并设置errno值.
-        int selection = select(sockfd + 1,&fdread, NULL, NULL, &tv);
-
-        //FD_ISSET判断fd是否在集合中
-        if(!selection || !FD_ISSET(sockfd, &fdread))
-        {
-            break;
-        }
-        else
-        {
-            memset(buffer, 0x00, BUFFER_SIZE);
-            //返回接受到的字节数
-            int len = recv(sockfd, buffer, BUFFER_SIZE, 0);
-            if(len == 0)
-            {
-                //disconnect
-                break;
+    while (1) {
+        int ret = select(sockfd + 1, &fdread, NULL, NULL, &tv);
+        if (ret < 0) {
+            printf("select error\n");
+            return NULL;
+        } else if (ret == 0) {
+            printf("select timeout\n");
+            return NULL;
+        } else {
+            if (FD_ISSET(sockfd, &fdread)) {
+                char buffer[BUFFER_SIZE];
+                memset(buffer, 0x00, BUFFER_SIZE);
+                ssize_t size = recv(sockfd, buffer, BUFFER_SIZE, 0);
+                if (size < 0) {
+                    printf("接收数据失败\n");
+                    return NULL;
+                } else if (size == 0) {
+                    break;
+                } else {
+                    result = realloc(result, strlen(result) + size + 1);
+                    strncat(result, buffer, size);
+                }
             }
-            //如果是扩大内存操作会把 result 指向的内存中的数据复制到新地址
-            result = realloc(result, (strlen(result) + len + 1) * sizeof(char));
-            strncat(result, buffer, len);
         }
     }
+    printf("1111111111result: %s\n", result
     // 6.构造上面定义的http_response
     http_response *response = malloc(sizeof(http_response));
     memset(response, 0x00, sizeof(http_response));
@@ -258,14 +251,8 @@ http_response *http_request(char *method, char *url, char *body, char *headers) 
                response->headers[response->header_count]->value);
         response->header_count++;
     }
-    //6.3 解析响应体body
-    result = strsep(&result, "\r\n\r\n");
-    printf("result: %s\n", result);
-    response->body = malloc(strlen(result) + 1);
-    strcpy(response->body, result);
-    //6.4 释放资源
-    free(result);
-    close(sockfd);
+    //6.3 解析响应体
+
     return response;
 }
 
