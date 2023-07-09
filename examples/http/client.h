@@ -7,6 +7,6 @@
 
 char * host_to_ip(const char *);
 int http_create_socket(char *);
-char * http_send_request(const char *, const char *)
+char * http_send_request(char *, char *)
 
 #endif //ST7789V_C_CLIENT_H

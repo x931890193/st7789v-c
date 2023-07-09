@@ -62,7 +62,7 @@ int http_create_socket(char *ip) {
     return sockfd;
 }
 
-char *http_send_request(const char *hostname, const char *resource) {
+char *http_send_request(char *hostname, char *resource) {
     //1.通过域名查询获得ip地址
     char *ip = host_to_ip(hostname);
 
