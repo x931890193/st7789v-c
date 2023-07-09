@@ -231,29 +231,16 @@ http_response *http_request(char *method, char *url, char *body, char *headers) 
 //    response->headers = malloc(sizeof(http_header) * MAX_HEADERS);
     while (1) {
         line = strsep(&result, "\r\n");
+        printf("line: %s\n", line);
         if (line == NULL || strlen(line) == 0) {
             break;
         }
-        sscanf(line, "%[^:]: %[^\r\n]", response->headers[response->header_count]->key,
-               response->headers[response->header_count]->value);
+        char *key = strsep(&line, ":");
+        char *value = line + 1;
+        response->headers[response->header_count]->key = key;
+        response->headers[response->header_count]->value = value;
         response->header_count++;
     }
-    printf("header_count:%d\n", response->header_count);
-    printf("headers:%s\n", response->headers[0]->key);
-//    HTTP/1.1 200 OK
-//    Server: nginx
-//    Date: Sun, 09 Jul 2023 10:33:01 GMT
-//    Content-Type: application/json
-//    Transfer-Encoding: chunked
-//    Connection: close
-//    Vary: Accept-Encoding
-//    Access-Control-Allow-Origin: *
-//    Access-Control-Allow-Credentials: true
-//
-//    11a
-//    {"nums":42,"cityid":"101010100","city":"北京","date":"2023-07-09","week":"星期日","update_time":"18:16","wea":"晴","wea_img":"qing","tem":"37","tem_day":"38","tem_night":"25","win":"西风","win_speed":"3级","win_meter":"12km\/h","air":"43","pressure":"992","humidity":"24%"}
-//    0
-    //6.3 解析响应体中json数据
 
 
     return response;
