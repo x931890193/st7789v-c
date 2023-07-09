@@ -119,15 +119,15 @@ int http_create_socket(char *ip) {
 }
 
 
-//// 定义http_response结构体
-//typedef struct {
-//    char version[16]; //http版本号
-//    int status_code; //状态码
-//    char status_text[16]; //状态码描述
-//    http_header *headers; //响应头
-//    int header_count; //响应头数量
-//    char *body; //响应体
-//} http_response;
+// 定义http_response结构体
+typedef struct {
+    char version[16]; //http版本号
+    int status_code; //状态码
+    char status_text[16]; //状态码描述
+    http_header *headers; //响应头
+    int header_count; //响应头数量
+    char *body; //响应体
+} http_response;
 
 
 // 定义get请求方法，使用http_request结构体，返回http_response，模仿python的requests库
@@ -260,6 +260,7 @@ http_response *http_request(char *method, char *url, char *body, char *headers) 
     }
     //6.3 解析响应体body
     result = strsep(&result, "\r\n\r\n");
+    printf("result: %s\n", result);
     response->body = malloc(strlen(result) + 1);
     strcpy(response->body, result);
     //6.4 释放资源
