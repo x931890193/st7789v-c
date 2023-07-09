@@ -258,11 +258,13 @@ http_response *http_request(char *method, char *url, char *body, char *headers) 
                response->headers[response->header_count]->value);
         response->header_count++;
     }
-    //6.3 解析响应体
-    response->body = result;
-    //7.关闭socket
+    //6.3 解析响应体body
+    result = strsep(&result, "\r\n\r\n");
+    response->body = malloc(strlen(result) + 1);
+    strcpy(response->body, result);
+    //6.4 释放资源
+    free(result);
     close(sockfd);
-    //8.返回响应
     return response;
 }
 
