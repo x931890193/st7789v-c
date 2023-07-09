@@ -262,6 +262,10 @@ http_response *http_request(char *method, char *url, char *body, char *headers) 
             //10.返回http响应
             return response;
 
+        } else {
+            printf("sockfd error\n");
+            return NULL;
+        }
     }
 }
 
