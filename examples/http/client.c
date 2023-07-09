@@ -248,7 +248,7 @@ http_response *http_request(char *method, char *url, char *body, char *headers) 
     sscanf(line, "%s %d %s", response->version, &response->status_code, response->status_text);
     //6.2 解析响应头
     response->header_count = 0;
-    response->headers = malloc(sizeof(http_header) * MAX_HEADERS);
+//    response->headers = malloc(sizeof(http_header) * MAX_HEADERS);
     while (1) {
         line = strsep(&result, "\r\n");
         if (line == NULL || strlen(line) == 0) {
