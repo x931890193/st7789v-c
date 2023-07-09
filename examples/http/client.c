@@ -141,18 +141,15 @@ http_response *http_request(char *method, char *url, char *body, char *headers) 
     char buffer[BUFFER_SIZE];
     sprintf(buffer, "%s %s %s\r\n", method, resource, HTTP_VERSION);
     sprintf(buffer + strlen(buffer), "Host: %s\r\n", hostname);
+    sprintf(buffer + strlen(buffer), "%s", CONNECTION_TYPE);
     if (headers != NULL) {
         sprintf(buffer + strlen(buffer), "%s", headers);
     }
-    sprintf(buffer + strlen(buffer), "%s", CONNECTION_TYPE);
     if (body != NULL) {
-        sprintf(buffer + strlen(buffer), "Content-Length: %ld\r\n", strlen(body));
-    }
-
-    sprintf(buffer + strlen(buffer), "\r\n");
-
-    if (body != NULL) {
+        sprintf(buffer + strlen(buffer), "Content-Length: %ld\r\n\r\n", strlen(body));
         sprintf(buffer + strlen(buffer), "%s", body);
+    } else {
+        sprintf(buffer + strlen(buffer), "\r\n");
     }
 
     //5.发送http请求
@@ -167,38 +164,48 @@ http_response *http_request(char *method, char *url, char *body, char *headers) 
     response->body = NULL;
     response->headers = NULL;
 
-    //7.读取响应行
+    //6.1读取响应行
     char status_line[BUFFER_SIZE];
     size = read(sockfd, status_line, BUFFER_SIZE);
     if (size < 0) {
         return NULL;
     }
+    char *pos = strstr(status_line, " ");
+    if (pos == NULL) {
+        return NULL;
+    }
+    *pos = '\0';
+    response->status_code = atoi(pos + 1);
 
-    //8.读取响应头
+    //6.2读取响应头
     char header[BUFFER_SIZE];
-    size = read(sockfd, header, BUFFER_SIZE);
-    if (size < 0) {
-        return NULL;
-    }
-
-    //9.读取响应体
-    char *content_length = strstr(header, "Content-Length: ");
-    if (content_length) {
-        content_length += 16;
-        char *end = strstr(content_length, "\r\n");
-        if (end) {
-            *end = '\0';
-            response->content_length = atoi(content_length);
+    while (1) {
+        memset(header, 0, BUFFER_SIZE);
+        size = read(sockfd, header, BUFFER_SIZE);
+        if (size <= 0) {
+            break;
         }
-    } else {
-        response->content_length = 0;
+        if (strcmp(header, "\r\n") == 0) {
+            break;
+        }
+        header[strlen(header) - 2] = '\0';
+        response->headers = realloc(response->headers, strlen(header) + 1);
+        strcpy(response->headers, header);
     }
-
-    response->body = (char *) malloc(response->content_length);
-    size = read(sockfd, response->body, response->content_length);
-    if (size < 0) {
-        return NULL;
+    //6.3读取响应体
+    while (1) {
+        memset(buffer, 0, BUFFER_SIZE);
+        size = read(sockfd, buffer, BUFFER_SIZE);
+        if (size <= 0) {
+            break;
+        }
+        response->body = realloc(response->body, strlen(buffer) + 1);
+        strcpy(response->body, buffer);
     }
+    // 7.关闭socket
+    close(sockfd);
+    // 8.返回响应
+    return response;
 }
 
 // 定义get请求方法

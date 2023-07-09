@@ -26,16 +26,16 @@ typedef struct {
 char * host_to_ip(const char *);
 
 int http_create_socket(char *);
-// 定义get请求方法， 返回http_response， 模仿python的requests库
-http_response *http_get(char *);
-// 定义post请求方法， 返回http_response， 模仿python的requests库
-http_response *http_post(char *, char *);
+
 // 定义http_parse_url方法， 解析url， 返回hostname， resource， port
 void http_parse_url(char *, char **, char **, int *);
+
 // 定义http_send_request方法， 发送请求， 返回响应
 http_response *http_request(char *method, char *url, char *body, char *headers);
+
 // 定义http_get
 http_response *http_get(char *url, char *headers);
+
 // 定义http_post
 http_response *http_post(char *url, char *body, char *headers);
 
