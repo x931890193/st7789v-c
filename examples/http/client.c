@@ -216,6 +216,7 @@ Host: %s\r\n\
             strncat(result, buffer, len);
         }
     }
+    printf("http response: \n%s\n", result);
     // 6.构造上面定义的http_response
     http_response *response = malloc(sizeof(http_response));
     memset(response, 0x00, sizeof(http_response));
