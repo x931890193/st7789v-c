@@ -486,7 +486,7 @@ void get_weather_info(char *appid, char *app_secret) {
     }
     printf("status_code: %d\n", result->status_code);
     cJSON *json = cJSON_Parse(result->body);
-    if json == NULL {
+    if (json == NULL) {
         printf("cJSON_Parse error\n");
         return;
     }

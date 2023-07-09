@@ -254,8 +254,8 @@ http_response *http_request(char *method, char *url, char *body, char *headers) 
         if (line == NULL || strlen(line) == 0) {
             break;
         }
-        sscanf(line, "%[^:]: %[^\r\n]", response->headers[response->header_count].key,
-               response->headers[response->header_count].value);
+        sscanf(line, "%[^:]: %[^\r\n]", response->headers[response->header_count]->key,
+               response->headers[response->header_count]->value);
         response->header_count++;
     }
     //6.3 解析响应体
