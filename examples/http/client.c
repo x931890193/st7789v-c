@@ -268,7 +268,7 @@ http_response *http_request(char *method, char *url, char *body, char *headers) 
         strncat(result, buffer, size);
     }
     // 解析result 字符串
-    http_response *response = http_parse_response(result);
+    http_response response = http_parse_response(result);
     // 释放内存
     free(result);
     free(ip);
