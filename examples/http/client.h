@@ -5,7 +5,8 @@
 #ifndef ST7789V_C_CLIENT_H
 #define ST7789V_C_CLIENT_H
 
-
+// MAX_HEADERS
+#define MAX_HEADERS 128
 // 定义http_header结构体
 typedef struct {
     char *key; //响应头key
