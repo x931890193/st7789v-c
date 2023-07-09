@@ -92,18 +92,6 @@ void http_parse_url(char *url, char **hostname, char **resource, int *port) {
     }
 }
 
-
-// 定义http_response结构体
-typedef struct {
-    char version[16]; //http版本号
-    int status_code; //状态码
-    char status_text[16]; //状态码描述
-    http_header *headers; //响应头
-    int header_count; //响应头数量
-    char *body; //响应体
-} http_response;
-
-
 int http_create_socket(char *ip) {
     //客户端连接到服务端
 
