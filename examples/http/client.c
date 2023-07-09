@@ -152,12 +152,14 @@ http_response *http_request(char *method, char *url, char *body, char *headers) 
     }
 
     //4.构建http请求
-    char buffer[BUFFER_SIZE];
+    char buffer[BUFFER_SIZE] = {0};// 或者memset清零
+    //字符串不在同一行的时候每行结尾要加反斜杠
+    //这里格式一定要注意，报文中空格不能多也不能少
     sprintf(buffer,
-            "%s %s %s\r\n\
+            "GET %s %s\r\n\
 Host: %s\r\n\
 %s\r\n\
-\r\n",      method,
+\r\n",
             resource, HTTP_VERSION,
             hostname,
             CONNECTION_TYPE); //CONNECTION_TYPE我们设置为close
