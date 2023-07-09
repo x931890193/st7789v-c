@@ -35,7 +35,7 @@ void http_parse_url(char *, char **, char **, int *);
 http_response *http_request(char *method, char *url, char *body, char *headers);
 
 // 定义http_parse_response方法， 解析响应， 返回http_response
-http_response *http_parse_response(char *response);
+http_response http_parse_response(char *response);
 
 // 定义http_get
 http_response *http_get(char *url, char *headers);
