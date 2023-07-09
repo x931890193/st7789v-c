@@ -153,18 +153,13 @@ http_response *http_request(char *method, char *url, char *body, char *headers) 
 
     //4.构建http请求
     char buffer[BUFFER_SIZE];
-    sprintf(buffer, "%s %s %s\r\n", method, resource, HTTP_VERSION);
+    sprintf(buffer, "%s %s HTTP/1.1\r\n", method, resource);
     sprintf(buffer + strlen(buffer), "Host: %s\r\n", hostname);
-    sprintf(buffer + strlen(buffer), "%s", CONNECTION_TYPE);
-    if (headers != NULL) {
-        sprintf(buffer + strlen(buffer), "%s", headers);
+    sprintf(buffer + strlen(buffer), "%s\r\n", headers);
+    if (strcmp(method, "POST") == 0) {
+        sprintf(buffer + strlen(buffer), "%s\r\n", body);
     }
-    if (body != NULL) {
-        sprintf(buffer + strlen(buffer), "Content-Length: %ld\r\n\r\n", strlen(body));
-        sprintf(buffer + strlen(buffer), "%s", body);
-    } else {
-        sprintf(buffer + strlen(buffer), "\r\n");
-    }
+    sprintf(buffer + strlen(buffer), "\r\n");
 
     //5.发送http请求
     ssize_t size = send(sockfd, buffer, strlen(buffer), 0);
