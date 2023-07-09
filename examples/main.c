@@ -477,9 +477,9 @@ void draw_time() {
 // 从网络地址获取天气信息
 void get_weather_info(char *appid, char *app_secret) {
     // 拼接URL和参数
-    char source[100];
-    sprintf(source, "/free/day?appid=%s&appsecret=%s&unescape=1", appid, app_secret);
-    char *result = http_send_request(weather_host, source);
+    char url[100];
+    sprintf(url, "%s/free/day?appid=%s&appsecret=%s&unescape=1", weather_host, appid, app_secret);
+    char *result = http_get(url, NULL, NULL);
     printf("result: %s\n", result);
     cJSON *json = cJSON_Parse(result);
     cJSON *wea = cJSON_GetObjectItem(json, "wea");
@@ -515,7 +515,7 @@ void *desktop() {
 
 int main() {
     // 初始化
-    weather_host  = "v0.yiketianqi.com";
+    weather_host  = "http://v0.yiketianqi.com";
     weather_appid = getenv("WEATHER_APPID");
     weather_app_secret = getenv("WEATHER_APP_SECRET");
     printf("weather_appid: %s\n", weather_appid);

@@ -64,6 +64,34 @@ char *host_to_ip(const char *hostname) {
     return NULL;
 }
 
+// http_parse_url
+void http_parse_url(char *url, char **hostname, char **resource, int *port) {
+    //1.判断是否包含http://
+    char *pos = strstr(url, "://");
+    if (pos) {
+        *hostname = pos + 3;
+    } else {
+        *hostname = url;
+    }
+
+    //2.判断是否包含端口号
+    *resource = strchr(*hostname, '/');
+    if (*resource) {
+        **resource = '\0';
+        (*resource)++;
+    } else {
+        *resource = "/";
+    }
+
+    //3.判断是否包含端口号
+    *port = 80;
+    pos = strchr(*hostname, ':');
+    if (pos) {
+        *port = atoi(pos + 1);
+        *pos = '\0';
+    }
+}
+
 int http_create_socket(char *ip) {
     //客户端连接到服务端
 
@@ -90,74 +118,94 @@ int http_create_socket(char *ip) {
     return sockfd;
 }
 
-char *http_send_request(char *hostname, char *resource) {
-    //1.通过域名查询获得ip地址
+// 定义get请求方法，使用http_request结构体，返回http_response，模仿python的requests库
+http_response *http_request(char *method, char *url, char *body, char *headers) {
+    //1.解析url
+    char *hostname, *resource;
+    int port;
+    http_parse_url(url, &hostname, &resource, &port);
+
+    //2.通过DNS将域名转为 IP
     char *ip = host_to_ip(hostname);
-
-    //2.创建socket（采用TCP连接）
-    int sockfd = http_create_socket(ip);
-
-    //3.组织请求报文
-    char buffer[BUFFER_SIZE] = {0};// 或者memset清零
-    //字符串不在同一行的时候每行结尾要加反斜杠
-    //这里格式一定要注意，报文中空格不能多也不能少
-    sprintf(buffer,
-            "GET %s %s\r\n\
-Host: %s\r\n\
-%s\r\n\
-\r\n",
-            resource, HTTP_VERSION,
-            hostname,
-            CONNECTION_TYPE); //CONNECTION_TYPE我们设置为close
-
-
-    //4.发送http请求报文
-    //最后一个参数为0,表示为阻塞式发送
-    //即送不成功会一直阻塞，直到被某个信号终端终止，或者直到发送成功为止。
-    send(sockfd, buffer, strlen(buffer), 0);
-
-    //不能简单使用recv()接受响应报文，因为我们创建的socket是非阻塞
-    //如果使用recv可能没收到数据也返回了。
-
-    //5.用select实现多路复用IO，循环检测是否有可读事件到来，从而进行recv
-    fd_set fdread; // 可读fd的集合
-    FD_ZERO(&fdread); //清零
-    FD_SET(sockfd, &fdread);//将sockfd添加到待检测的可读fd集合
-
-    struct timeval tv;
-    tv.tv_sec = 5;
-    tv.tv_usec = 0;
-
-
-    char *result = malloc(sizeof(int));
-    memset(result, 0x00, sizeof(int));
-    while (1) {
-        //第一参数：是一个整数值，是指集合中所有文件描述符的范围，即所有文件描述符的最大值加1
-        //第二参数：可读文件描述符的集合[in/out]
-        //第三参数：可写文件描述符的集合[in/out]
-        //第四参数：出现错误文件描述符的集合[in/out]
-        //第五参数：轮询的时间
-        //返回值: 成功返回发生变化的文件描述符的个数
-        //0：等待超时，没有可读写或错误的文件
-        //失败返回-1, 并设置errno值.
-        int selection = select(sockfd + 1, &fdread, NULL, NULL, &tv);
-
-        //FD_ISSET判断fd是否在集合中
-        if (!selection || !FD_ISSET(sockfd, &fdread)) {
-            break;
-        } else {
-            memset(buffer, 0x00, BUFFER_SIZE);
-            //返回接受到的字节数
-            int len = recv(sockfd, buffer, BUFFER_SIZE, 0);
-            if (len == 0) {
-                //disconnect
-                break;
-            }
-            //如果是扩大内存操作会把 result 指向的内存中的数据复制到新地址
-            result = realloc(result, (strlen(result) + len + 1) * sizeof(char));
-            strncat(result, buffer, len);
-        }
+    if (ip == NULL) {
+        return NULL;
     }
 
-    return result;
+    //3.创建socket
+    int sockfd = http_create_socket(ip);
+    if (sockfd < 0) {
+        return NULL;
+    }
+
+    //4.构建http请求
+    char buffer[BUFFER_SIZE];
+    sprintf(buffer, "%s %s %s\r\n", method, resource, HTTP_VERSION);
+    sprintf(buffer + strlen(buffer), "Host: %s\r\n", hostname);
+    if (headers != NULL) {
+        sprintf(buffer + strlen(buffer), "%s", headers);
+    }
+    sprintf(buffer + strlen(buffer), "%s", CONNECTION_TYPE);
+    if (body != NULL) {
+        sprintf(buffer + strlen(buffer), "Content-Length: %ld\r\n", strlen(body));
+    }
+
+    sprintf(buffer + strlen(buffer), "\r\n");
+
+    if (body != NULL) {
+        sprintf(buffer + strlen(buffer), "%s", body);
+    }
+
+    //5.发送http请求
+    ssize_t size = send(sockfd, buffer, strlen(buffer), 0);
+    if (size < 0) {
+        return NULL;
+    }
+
+    //6.读取http响应
+    http_response *response = (http_response *) malloc(sizeof(http_response));
+    response->status_code = -1;
+    response->body = NULL;
+    response->headers = NULL;
+
+    //7.读取响应行
+    char status_line[BUFFER_SIZE];
+    size = read(sockfd, status_line, BUFFER_SIZE);
+    if (size < 0) {
+        return NULL;
+    }
+
+    //8.读取响应头
+    char header[BUFFER_SIZE];
+    size = read(sockfd, header, BUFFER_SIZE);
+    if (size < 0) {
+        return NULL;
+    }
+
+    //9.读取响应体
+    char *content_length = strstr(header, "Content-Length: ");
+    if (content_length) {
+        content_length += 16;
+        char *end = strstr(content_length, "\r\n");
+        if (end) {
+            *end = '\0';
+            response->content_length = atoi(content_length);
+        }
+    } else {
+        response->content_length = 0;
+    }
+
+    response->body = (char *) malloc(response->content_length);
+    size = read(sockfd, response->body, response->content_length);
+    if (size < 0) {
+        return NULL;
+    }
+}
+
+// 定义get请求方法
+http_response *http_get(char *url, char *headers) {
+    return http_request("GET", url, NULL, headers);
+}
+// 定义post请求方法
+http_response *http_post(char *url, char *body, char *headers) {
+    return http_request("POST", url, body, headers);
 }
