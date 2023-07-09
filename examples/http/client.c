@@ -136,6 +136,12 @@ http_response *http_request(char *method, char *url, char *body, char *headers) 
     char *hostname, *resource;
     int port;
     http_parse_url(url, &hostname, &resource, &port);
+    // resource 不是以 / 开头的，需要加上 /
+    if (resource[0] != '/') {
+        char *temp = (char *) malloc(strlen(resource) + 2);
+        sprintf(temp, "/%s", resource);
+        resource = temp;
+    }
     printf("hostname: %s, resource: %s, port: %d\n", hostname, resource, port);
     //2.通过DNS将域名转为 IP
     char *ip = host_to_ip(hostname);
@@ -151,18 +157,38 @@ http_response *http_request(char *method, char *url, char *body, char *headers) 
         return NULL;
     }
 
-    //4.构建http请求
-    char buffer[BUFFER_SIZE] = {0};// 或者memset清零
-    //字符串不在同一行的时候每行结尾要加反斜杠
-    //这里格式一定要注意，报文中空格不能多也不能少
-    sprintf(buffer,
-            "GET /%s %s\r\n\
-Host: %s\r\n\
-%s\r\n\
-\r\n",
-            resource, HTTP_VERSION,
-            hostname,
-            CONNECTION_TYPE); //CONNECTION_TYPE我们设置为close
+    //4.构建http请求  根据不同的请求方法，构建不同的http请求参数
+    char buffer[BUFFER_SIZE];
+    if (strcasecmp(method, "GET") == 0) {
+        sprintf(buffer, "GET %s HTTP/1.1\r\n", resource);
+    } else if (strcasecmp(method, "POST") == 0) {
+        sprintf(buffer, "POST %s HTTP/1.1\r\n", resource);
+    } else if (strcasecmp(method, "PUT") == 0) {
+        sprintf(buffer, "PUT %s HTTP/1.1\r\n", resource);
+    } else if (strcasecmp(method, "DELETE") == 0) {
+        sprintf(buffer, "DELETE %s HTTP/1.1\r\n", resource);
+    } else {
+        printf("不支持的http请求方法\n");
+        return NULL;
+    }
+    // 4.1 添加host请求头
+    sprintf(buffer + strlen(buffer), "Host: %s\r\n", hostname);
+    // 4.2 添加自定义请求头
+    if (headers != NULL) {
+        sprintf(buffer + strlen(buffer), "%s\r\n", headers);
+    }
+    // 4.3 添加Content-Length请求头
+    if (strcasecmp(method, "POST") == 0 || strcasecmp(method, "PUT") == 0) {
+        sprintf(buffer + strlen(buffer), "Content-Length: %lu\r\n", strlen(body));
+    }
+    // 4.4 添加Connection: close请求头
+    sprintf(buffer + strlen(buffer), "Connection: close\r\n");
+    // 4.5 添加空行
+    sprintf(buffer + strlen(buffer), "\r\n");
+    // 4.6 添加body
+    if (strcasecmp(method, "POST") == 0 || strcasecmp(method, "PUT") == 0) {
+        sprintf(buffer + strlen(buffer), "%s\r\n", body);
+    }
 
     printf("http request: \n%s\n", buffer);
     //5.发送http请求
