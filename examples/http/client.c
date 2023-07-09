@@ -196,41 +196,29 @@ http_response *http_request(char *method, char *url, char *body, char *headers) 
         return NULL;
     }
     //5.用select实现多路复用IO，循环检测是否有可读事件到来，从而进行recv
-    fd_set fdread; // 可读fd的集合
-    FD_ZERO(&fdread); //清零
-    FD_SET(sockfd, &fdread);//将sockfd添加到待检测的可读fd集合
-
-    struct timeval tv;
-    tv.tv_sec = 5;
-    tv.tv_usec = 0;
-
-
-    char *result = malloc(sizeof(int));
-    memset(result, 0x00, sizeof(int));
+    fd_set fdset;
+    FD_ZERO(&fdset);
+    FD_SET(sockfd, &fdset);
+    struct timeval timeout = {3, 0};
+    int ret = select(sockfd + 1, &fdset, NULL, NULL, &timeout);
+    if (ret < 0) {
+        printf("select error\n");
+        return NULL;
+    } else if (ret == 0) {
+        printf("select timeout\n");
+        return NULL;
+    }
+    //5.1 读取响应数据
+    char *result = (char *) malloc(sizeof(char) * BUFFER_SIZE);
+    memset(result, 0x00, BUFFER_SIZE);
     while (1) {
-        int ret = select(sockfd + 1, &fdread, NULL, NULL, &tv);
-        if (ret < 0) {
-            printf("select error\n");
-            return NULL;
-        } else if (ret == 0) {
-            printf("select timeout\n");
-            return NULL;
-        } else {
-            if (FD_ISSET(sockfd, &fdread)) {
-                char buffer[BUFFER_SIZE];
-                memset(buffer, 0x00, BUFFER_SIZE);
-                ssize_t size = recv(sockfd, buffer, BUFFER_SIZE, 0);
-                if (size < 0) {
-                    printf("接收数据失败\n");
-                    return NULL;
-                } else if (size == 0) {
-                    break;
-                } else {
-                    result = realloc(result, strlen(result) + size + 1);
-                    strncat(result, buffer, size);
-                }
-            }
+        memset(buffer, 0x00, BUFFER_SIZE);
+        size = recv(sockfd, buffer, BUFFER_SIZE - 1, 0);
+        if (size <= 0) {
+            break;
         }
+        result = realloc(result, strlen(result) + size + 1);
+        strncat(result, buffer, size);
     }
     printf("1111111111result: %s\n", result);
     // 6.构造上面定义的http_response
