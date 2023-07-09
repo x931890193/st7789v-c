@@ -21,11 +21,16 @@
 #include "cjson.h"
 #include "image_base.h"
 #include "util.h"
+#include "client.h"
 
 #define BROADCAST_ADDR "255.255.255.255"
 #define BROADCAST_PORT 4000
 #define COUNT  10
 #define SendSleepTime 3
+#define WeatherHost "https://v0.yiketianqi.com"
+
+char weather_appid[64];
+char weather_app_secret[64];
 
 struct BroadcastInfo {
     char host[64];
@@ -33,6 +38,13 @@ struct BroadcastInfo {
     char temp[8];
     char time[64];
     char ip[32];
+};
+struct WeatherInfo {
+    char city[64];
+    char temp[8];
+    char weather[64];
+    char wind[64];
+    char humidity[64];
 };
 
 int *sock_fd;
@@ -461,10 +473,36 @@ void draw_time() {
     // week
     Paint_DrawImage(time_week_nums[week], 0, 240 - 38, 85, 38);
 }
+
+// 从网络地址获取天气信息
+void get_weather_info(char *appid, char *app_secret) {
+    // 拼接URL和参数
+    char source[100];
+    sprintf(source, "/free/day?appid=%s&appsecret=%s", appid, app_secret);
+    char *result = http_send_request(WeatherHost, source);
+    cJSON *json = cJSON_Parse(result);
+    cJSON *wea = cJSON_GetObjectItem(json, "wea");
+    cJSON *wea_img = cJSON_GetObjectItem(data, "wea_img");
+    cJSON *tem = cJSON_GetObjectItem(today, "tem");
+    cJSON *win = cJSON_GetObjectItem(today, "win");
+    cJSON *humidity = cJSON_GetObjectItem(today, "humidity");
+    // 打印上面所有数据
+    printf("wea: %s\n", wea->valuestring);
+    printf("wea_img: %s\n", wea_img->valuestring);
+    printf("tem: %s\n", tem->valuestring);
+    printf("win: %s\n", win->valuestring);
+    printf("humidity: %s\n", humidity->valuestring);
+    // 释放内存
+    cJSON_Delete(json);
+    free(result);
+}
+
+
 // desktop显示
 void *desktop() {
     UWORD *BlackImage;
     BlackImage = set_up();
+    get_weather_info(weather_appid, weather_app_secret);
     while (1) {
         Paint_Clear(WHITE);
         draw_time();
@@ -474,7 +512,13 @@ void *desktop() {
     free(BlackImage);
 }
 
-int main() {
+int main(int argc, char *argv[]) {
+    // 初始化
+    weather_appid = getenv("WEATHER_APPID");
+    weather_app_secret = getenv("WEATHER_APP_SECRET");
+    printf("weather_appid: %s\n", weather_appid);
+    printf("weather_app_secret: %s\n", weather_app_secret);
+
     pthread_t p_send, p_recv, p_display;
     pthread_create(&p_send, NULL, sender, NULL);
     pthread_create(&p_recv, NULL, broadcast_receiver, NULL);
