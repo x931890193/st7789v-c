@@ -481,6 +481,10 @@ void get_weather_info(char *appid, char *app_secret) {
     sprintf(url, "%s/free/day?appid=%s&appsecret=%s&unescape=1", weather_host, appid, app_secret);
     printf("url: %s\n", url);
     http_response *result = http_get(url, NULL);
+    if (result == NULL) {
+        printf("http_get error\n");
+        return;
+    }
     printf("result: %s\n", result->body);
     printf("status_code: %d\n", result->status_code);
     printf("headers: %s\n", result->headers);

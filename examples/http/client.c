@@ -92,6 +92,18 @@ void http_parse_url(char *url, char **hostname, char **resource, int *port) {
     }
 }
 
+
+// 定义http_response结构体
+typedef struct {
+    char version[16]; //http版本号
+    int status_code; //状态码
+    char status_text[16]; //状态码描述
+    http_header *headers; //响应头
+    int header_count; //响应头数量
+    char *body; //响应体
+} http_response;
+
+
 int http_create_socket(char *ip) {
     //客户端连接到服务端
 
@@ -160,59 +172,98 @@ http_response *http_request(char *method, char *url, char *body, char *headers) 
         printf("发送http请求失败\n");
         return NULL;
     }
-
-    //6.读取http响应
-    http_response *response = (http_response *) malloc(sizeof(http_response));
-    response->status_code = -1;
-    response->body = NULL;
-    response->headers = NULL;
-
-    //6.1读取响应行
-    char status_line[BUFFER_SIZE];
-    size = read(sockfd, status_line, BUFFER_SIZE);
-    if (size < 0) {
-        printf("读取响应行失败\n");
+    // 用select实现多路复用IO，循环检测是否有可读事件到来，从而进行recv, 构造上面定义的http_response
+    fd_set fdset;
+    FD_ZERO(&fdset);
+    FD_SET(sockfd, &fdset);
+    struct timeval timeout = {3, 0};
+    int ret = select(sockfd + 1, &fdset, NULL, NULL, &timeout);
+    if (ret < 0) {
+        printf("select error\n");
         return NULL;
-    }
-    char *pos = strstr(status_line, " ");
-    if (pos == NULL) {
-        printf("响应行格式错误\n");
+    } else if (ret == 0) {
+        printf("select timeout\n");
         return NULL;
-    }
-    *pos = '\0';
-    response->status_code = atoi(pos + 1);
+    } else {
+        if (FD_ISSET(sockfd, &fdset)) {
+            //6.接收http响应
+            http_response *response = (http_response *) malloc(sizeof(http_response));
+            memset(response, 0, sizeof(http_response));
+            char *pos = response->version;
+            while (1) {
+                recv(sockfd, pos, 1, 0);
+                if (*pos == ' ' || *pos == '\r') {
+                    *pos = '\0';
+                    break;
+                }
+                pos++;
+            }
+            pos = response->status_text;
+            while (1) {
+                recv(sockfd, pos, 1, 0);
+                if (*pos == '\r') {
+                    *pos = '\0';
+                    break;
+                }
+                pos++;
+            }
+            response->status_code = atoi(response->status_text);
+            printf("status_code: %d\n", response->status_code);
+            //7.解析http响应头
+            char *content_length = NULL;
+            while (1) {
+                char *key = (char *) malloc(sizeof(char) * 128);
+                char *value = (char *) malloc(sizeof(char) * 1024);
+                memset(key, 0, sizeof(char) * 128);
+                memset(value, 0, sizeof(char) * 1024);
+                pos = key;
+                while (1) {
+                    recv(sockfd, pos, 1, 0);
+                    if (*pos == ':') {
+                        *pos = '\0';
+                        break;
+                    }
+                    pos++;
+                }
+                pos = value;
+                while (1) {
+                    recv(sockfd, pos, 1, 0);
+                    if (*pos == '\r') {
+                        *pos = '\0';
+                        break;
+                    }
+                    pos++;
+                }
+                if (strcmp(key, "Content-Length") == 0) {
+                    content_length = value;
+                }
+                if (strcmp(key, "\0") == 0) {
+                    break;
+                }
+                response->header_count++;
+                response->headers = (http_header *) realloc(response->headers,
+                                                            sizeof(http_header) * response->header_count);
+                response->headers[response->header_count - 1].key = key;
+                response->headers[response->header_count - 1].value = value;
 
-    //6.2读取响应头
-    char header[BUFFER_SIZE];
-    while (1) {
-        memset(header, 0, BUFFER_SIZE);
-        size = read(sockfd, header, BUFFER_SIZE);
-        if (size <= 0) {
-            break;
+            }
+            //8.解析http响应体
+            if (content_length != NULL) {
+                response->body = (char *) malloc(sizeof(char) * (atoi(content_length) + 1));
+                memset(response->body, 0, sizeof(char) * (atoi(content_length) + 1));
+                recv(sockfd, response->body, atoi(content_length), 0);
+            }
+            //9.关闭socket
+            close(sockfd);
+            //10.返回http响应
+            return response;
+
+        } else {
+            printf("sockfd error\n");
+            return NULL;
         }
-        if (strcmp(header, "\r\n") == 0) {
-            break;
-        }
-        header[strlen(header) - 2] = '\0';
-        response->headers = realloc(response->headers, strlen(header) + 1);
-        strcpy(response->headers, header);
     }
-    //6.3读取响应体
-    while (1) {
-        memset(buffer, 0, BUFFER_SIZE);
-        size = read(sockfd, buffer, BUFFER_SIZE);
-        if (size <= 0) {
-            break;
-        }
-        response->body = realloc(response->body, strlen(buffer) + 1);
-        strcpy(response->body, buffer);
-    }
-    // 7.关闭socket
-    close(sockfd);
-    // 8.返回响应
-    printf("response->status_code: %d\n", response->status_code);
-    return response;
-}
+
 
 // 定义get请求方法
 http_response *http_get(char *url, char *headers) {
