@@ -481,7 +481,7 @@ void get_weather_info(char *appid, char *app_secret) {
     sprintf(url, "%s/free/day?appid=%s&appsecret=%s&unescape=1", weather_host, appid, app_secret);
     http_response *result = http_get(url, NULL);
     printf("result: %s\n", result->body);
-    printf("status: %d\n", result->status);
+    printf("status_code: %d\n", result->status_code);
     printf("headers: %s\n", result->headers);
     cJSON *json = cJSON_Parse(result);
     cJSON *wea = cJSON_GetObjectItem(json, "wea");

@@ -5,7 +5,14 @@
 #ifndef ST7789V_C_CLIENT_H
 #define ST7789V_C_CLIENT_H
 
-// 完整的HTTP响应结构体 包含响应头和响应体状态码
+
+// 定义http_header结构体
+typedef struct {
+    char *key; //响应头key
+    char *value; //响应头value
+} http_header; //响应头
+
+
 // 定义http_response结构体
 typedef struct {
     char version[16]; //http版本号
@@ -15,29 +22,6 @@ typedef struct {
     int header_count; //响应头数量
     char *body; //响应体
 } http_response;
-
-// 定义http_header结构体
-typedef struct {
-    char *key; //响应头key
-    char *value; //响应头value
-} http_header; //响应头
-
-// 定义http_request结构体
-typedef struct {
-    char *method; //请求方法
-    char *path; //请求路径
-    char *version; //http版本号
-    http_header *headers; //请求头
-    int header_count; //请求头数量
-    char *body; //请求体
-} http_request;
-
-// 定义http_header结构体
-typedef struct {
-    char *key; //请求头key
-    char *value; //请求头value
-} http_header; //请求头
-
 
 char * host_to_ip(const char *);
 
