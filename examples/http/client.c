@@ -143,7 +143,7 @@ http_response parse_http_response(const char *response_message) {
         // 解析响应头的键
         int key_length = strcspn(response_message + offset, ":");
         response.headers[i]->key = malloc(key_length + 1);
-        strncpy(response.headers[i].key, response_message + offset, key_length);
+        strncpy(response.headers[i]->key, response_message + offset, key_length);
         response.headers[i]->key[key_length] = '\0';
 
         // 解析响应头的值
