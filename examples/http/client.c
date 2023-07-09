@@ -161,6 +161,7 @@ http_response *http_request(char *method, char *url, char *body, char *headers) 
     }
     sprintf(buffer + strlen(buffer), "\r\n");
 
+    printf("http request: \n%s\n", buffer);
     //5.发送http请求
     ssize_t size = send(sockfd, buffer, strlen(buffer), 0);
     if (size < 0) {
