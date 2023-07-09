@@ -130,86 +130,51 @@ int http_create_socket(char *ip) {
 //} http_response;
 
 // http_parse_response
-http_response *http_parse_response(char *response) {
-    http_response *res = (http_response *) malloc(sizeof(http_response));
-    char *pos = NULL;
-    char *start = NULL;
-    char *end = NULL;
-    int len = 0;
+http_response parse_http_response(const char *response_message) {
+    http_response response;
 
-    //1.解析状态行
-    //1.1解析http版本号
-    pos = strstr(response, " ");
-    if (pos == NULL) {
-        goto ERROR;
+    // 解析起始行
+    sscanf(response_message, "%s %d %s", response.version, &response.status_code, response.status_text);
+
+    // 解析头部字段
+    int offset = strcspn(response_message, "\r\n") + 2; // 找到第一个换行符并向后偏移两个字符
+    int i = 0;
+    while (strncmp(response_message + offset, "\r\n", 2) != 0) {
+        // 解析响应头的键
+        int key_length = strcspn(response_message + offset, ":");
+        response.headers[i]->key = malloc(key_length + 1);
+        strncpy(response.headers[i].key, response_message + offset, key_length);
+        response.headers[i]->key[key_length] = '\0';
+
+        // 解析响应头的值
+        int value_start = offset + key_length + 2; // 偏移冒号和一个空格的长度
+        int value_length = strcspn(response_message + value_start, "\r\n");
+        response.headers[i].value = malloc(value_length + 1);
+        strncpy(response.headers[i]->value, response_message + value_start, value_length);
+        response.headers[i]->value[value_length] = '\0';
+
+        offset += value_start + value_length + 2; // 偏移冒号、空格和换行符的长度
+        i++;
     }
-    len = pos - response;
-    strncpy(res->version, response, len);
-    res->version[len] = '\0';
+    response.header_count = i;
 
-    //1.2解析状态码
-    start = pos + 1;
-    pos = strstr(start, " ");
-    if (pos == NULL) {
-        goto ERROR;
+    // 解析消息主体
+    offset += 2; // 跳过最后的换行符
+    int body_length = strlen(response_message) - offset;
+    response.body = malloc(body_length + 1);
+    strncpy(response.body, response_message + offset, body_length);
+    response.body[body_length] = '\0';
+
+    return response;
+}
+
+void free_http_response(http_response *response) {
+    // 释放动态分配的内存
+    for (int i = 0; i < response->header_count; i++) {
+        free(response->headers[i].key);
+        free(response->headers[i].value);
     }
-    len = pos - start;
-    res->status_code = atoi(start);
-
-    //1.3解析状态码描述
-    start = pos + 1;
-    pos = strstr(start, "\r\n");
-    if (pos == NULL) {
-        goto ERROR;
-    }
-    len = pos - start;
-    strncpy(res->status_text, start, len);
-    res->status_text[len] = '\0';
-
-    //2.解析响应头
-    start = pos + 2;
-    pos = strstr(start, "\r\n\r\n");
-    if (pos == NULL) {
-        goto ERROR;
-    }
-    len = pos - start;
-    res->headers = (http_header *) malloc(sizeof(http_header) * 16);
-    res->header_count = 0;
-    while (1) {
-        //2.1解析响应头的key
-        end = strstr(start, ": ");
-        if (end == NULL) {
-            break;
-        }
-        len = end - start;
-        strncpy(res->headers[res->header_count]->key, start, len);
-        res->headers[res->header_count]->key[len] = '\0';
-
-        //2.2解析响应头的value
-        start = end + 2;
-        end = strstr(start, "\r\n");
-        if (end == NULL) {
-            break;
-        }
-        len = end - start;
-        strncpy(res->headers[res->header_count]->value, start, len);
-        res->headers[res->header_count]->value[len] = '\0';
-
-        //2.3解析下一个响应头
-        start = end + 2;
-        res->header_count++;
-    }
-    //2.4解析响应体
-    start = pos + 4;
-    len = strlen(start);
-    res->body = (char *) malloc(len + 1);
-    strcpy(res->body, start);
-    res->body[len] = '\0';
-    ERROR:  //解析失败
-        return res;
-    //3.返回结果
-    return res;
-
+    free(response->body);
 }
 
 // 定义get请求方法，使用http_request结构体，返回http_response，模仿python的requests库
