@@ -124,7 +124,7 @@ http_response *http_request(char *method, char *url, char *body, char *headers) 
     char *hostname, *resource;
     int port;
     http_parse_url(url, &hostname, &resource, &port);
-    printf("hostname: %s, resource: %s, port: %d\n", hostname, resource, port)
+    printf("hostname: %s, resource: %s, port: %d\n", hostname, resource, port);
     //2.通过DNS将域名转为 IP
     char *ip = host_to_ip(hostname);
     if (ip == NULL) {
