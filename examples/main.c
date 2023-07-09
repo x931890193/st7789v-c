@@ -28,9 +28,9 @@
 #define COUNT  10
 #define SendSleepTime 3
 
-char weather_host[64];
-char weather_appid[64];
-char weather_app_secret[64];
+char *weather_host;
+char *weather_appid;
+char *weather_app_secret;
 
 struct BroadcastInfo {
     char host[64];
