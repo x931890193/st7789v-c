@@ -156,7 +156,7 @@ http_response *http_request(char *method, char *url, char *body, char *headers) 
     //字符串不在同一行的时候每行结尾要加反斜杠
     //这里格式一定要注意，报文中空格不能多也不能少
     sprintf(buffer,
-            "GET \%s %s\r\n\
+            "GET /%s %s\r\n\
 Host: %s\r\n\
 %s\r\n\
 \r\n",
