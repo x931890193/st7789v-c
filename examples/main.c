@@ -28,7 +28,7 @@
 #define COUNT  10
 #define SendSleepTime 3
 
-char WeatherHost[64] = "https://v0.yiketianqi.com";
+char weather_host[64];
 char weather_appid[64];
 char weather_app_secret[64];
 
@@ -512,8 +512,9 @@ void *desktop() {
     free(BlackImage);
 }
 
-int main(int argc, char *argv[]) {
+int main() {
     // 初始化
+    weather_host  = "https://v0.yiketianqi.com";
     weather_appid = getenv("WEATHER_APPID");
     weather_app_secret = getenv("WEATHER_APP_SECRET");
     printf("weather_appid: %s\n", weather_appid);
