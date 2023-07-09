@@ -119,15 +119,15 @@ int http_create_socket(char *ip) {
 }
 
 
-//// 定义http_response结构体
-//typedef struct {
-//    char version[16]; //http版本号
-//    int status_code; //状态码
-//    char status_text[16]; //状态码描述
-//    http_header *headers; //响应头
-//    int header_count; //响应头数量
-//    char *body; //响应体
-//} http_response;
+// 定义http_response结构体
+typedef struct {
+    char version[16]; //http版本号
+    int status_code; //状态码
+    char status_text[16]; //状态码描述
+    http_header *headers; //响应头
+    int header_count; //响应头数量
+    char *body; //响应体
+} http_response;
 
 
 // 定义get请求方法，使用http_request结构体，返回http_response，模仿python的requests库
@@ -173,100 +173,74 @@ http_response *http_request(char *method, char *url, char *body, char *headers) 
         return NULL;
     }
     // 用select实现多路复用IO，循环检测是否有可读事件到来，从而进行recv, 构造上面定义的http_response
-    fd_set fdset;
-    FD_ZERO(&fdset);
-    FD_SET(sockfd, &fdset);
-    struct timeval timeout = {3, 0};
-    int ret = select(sockfd + 1, &fdset, NULL, NULL, &timeout);
-    if (ret < 0) {
-        printf("select error\n");
-        return NULL;
-    } else if (ret == 0) {
-        printf("select timeout\n");
-        return NULL;
-    } else {
-        if (FD_ISSET(sockfd, &fdset)) {
-            //6.接收http响应
-            http_response *response = (http_response *) malloc(sizeof(http_response));
-            memset(response, 0, sizeof(http_response));
-            char *pos = response->version;
-            while (1) {
-                recv(sockfd, pos, 1, 0);
-                if (*pos == ' ' || *pos == '\r') {
-                    *pos = '\0';
-                    break;
-                }
-                pos++;
-            }
-            pos = response->status_text;
-            while (1) {
-                recv(sockfd, pos, 1, 0);
-                if (*pos == '\r') {
-                    *pos = '\0';
-                    break;
-                }
-                pos++;
-            }
-            response->status_code = atoi(response->status_text);
-            printf("status_code: %d\n", response->status_code);
-            //7.解析http响应头
-            char *content_length = NULL;
-            while (1) {
-                char *key = (char *) malloc(sizeof(char) * 128);
-                char *value = (char *) malloc(sizeof(char) * 1024);
-                memset(key, 0, sizeof(char) * 128);
-                memset(value, 0, sizeof(char) * 1024);
-                pos = key;
-                while (1) {
-                    recv(sockfd, pos, 1, 0);
-                    if (*pos == ':') {
-                        *pos = '\0';
-                        break;
-                    }
-                    pos++;
-                }
-                pos = value;
-                while (1) {
-                    recv(sockfd, pos, 1, 0);
-                    if (*pos == '\r') {
-                        *pos = '\0';
-                        break;
-                    }
-                    pos++;
-                }
-                if (strcmp(key, "Content-Length") == 0) {
-                    content_length = value;
-                }
-                if (strcmp(key, "\0") == 0) {
-                    break;
-                }
-                printf("%s: %s\n", key, value);
-                free(key);
-                free(value);
-            }
-            //8.解析http响应体
-            if (content_length != NULL) {
-                response->body = (char *) malloc(sizeof(char) * (atoi(content_length) + 1));
-                memset(response->body, 0, sizeof(char) * (atoi(content_length) + 1));
-                pos = response->body;
-                int len = atoi(content_length);
-                while (len > 0) {
-                    ssize_t size = recv(sockfd, pos, len, 0);
-                    pos += size;
-                    len -= size;
-                }
-                printf("body: %s\n", response->body);
-            }
-            //9.关闭socket
-            close(sockfd);
-            //10.返回http响应
-            return response;
+    //5.用select实现多路复用IO，循环检测是否有可读事件到来，从而进行recv
+    fd_set fdread; // 可读fd的集合
+    FD_ZERO(&fdread); //清零
+    FD_SET(sockfd, &fdread);//将sockfd添加到待检测的可读fd集合
 
-        } else {
-            printf("sockfd error\n");
-            return NULL;
+    struct timeval tv;
+    tv.tv_sec = 5;
+    tv.tv_usec = 0;
+
+
+    char *result = malloc(sizeof(int));
+    memset(result, 0x00, sizeof(int));
+    while(1)
+    {
+        //第一参数：是一个整数值，是指集合中所有文件描述符的范围，即所有文件描述符的最大值加1
+        //第二参数：可读文件描述符的集合[in/out]
+        //第三参数：可写文件描述符的集合[in/out]
+        //第四参数：出现错误文件描述符的集合[in/out]
+        //第五参数：轮询的时间
+        //返回值: 成功返回发生变化的文件描述符的个数
+        //0：等待超时，没有可读写或错误的文件
+        //失败返回-1, 并设置errno值.
+        int selection = select(sockfd + 1,&fdread, NULL, NULL, &tv);
+
+        //FD_ISSET判断fd是否在集合中
+        if(!selection || !FD_ISSET(sockfd, &fdread))
+        {
+            break;
+        }
+        else
+        {
+            memset(buffer, 0x00, BUFFER_SIZE);
+            //返回接受到的字节数
+            int len = recv(sockfd, buffer, BUFFER_SIZE, 0);
+            if(len == 0)
+            {
+                //disconnect
+                break;
+            }
+            //如果是扩大内存操作会把 result 指向的内存中的数据复制到新地址
+            result = realloc(result, (strlen(result) + len + 1) * sizeof(char));
+            strncat(result, buffer, len);
         }
     }
+    // 6.构造上面定义的http_response
+    http_response *response = malloc(sizeof(http_response));
+    memset(response, 0x00, sizeof(http_response));
+    //6.1 解析响应行
+    char *line = strsep(&result, "\r\n");
+    sscanf(line, "%s %d %s", response->version, &response->status_code, response->status_text);
+    //6.2 解析响应头
+    response->header_count = 0;
+    response->headers = malloc(sizeof(http_header) * MAX_HEADERS);
+    while (1) {
+        line = strsep(&result, "\r\n");
+        if (line == NULL || strlen(line) == 0) {
+            break;
+        }
+        sscanf(line, "%[^:]: %[^\r\n]", response->headers[response->header_count].key,
+               response->headers[response->header_count].value);
+        response->header_count++;
+    }
+    //6.3 解析响应体
+    response->body = result;
+    //7.关闭socket
+    close(sockfd);
+    //8.返回响应
+    return response;
 }
 
 
