@@ -269,13 +269,14 @@ http_response *http_request(char *method, char *url, char *body, char *headers) 
     }
     // 解析result 字符串
     http_response response = http_parse_response(result);
+    printf("body：%s\n", response.body);
     // 释放内存
     free(result);
     free(ip);
     free(hostname);
     free(resource);
     close(sockfd);
-    return response;
+    return &response;
 }
 
 
