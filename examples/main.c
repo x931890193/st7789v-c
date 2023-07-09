@@ -482,10 +482,10 @@ void get_weather_info(char *appid, char *app_secret) {
     char *result = http_send_request(weather_host, source);
     cJSON *json = cJSON_Parse(result);
     cJSON *wea = cJSON_GetObjectItem(json, "wea");
-    cJSON *wea_img = cJSON_GetObjectItem(data, "wea_img");
-    cJSON *tem = cJSON_GetObjectItem(today, "tem");
-    cJSON *win = cJSON_GetObjectItem(today, "win");
-    cJSON *humidity = cJSON_GetObjectItem(today, "humidity");
+    cJSON *wea_img = cJSON_GetObjectItem(json, "wea_img");
+    cJSON *tem = cJSON_GetObjectItem(json, "tem");
+    cJSON *win = cJSON_GetObjectItem(json, "win");
+    cJSON *humidity = cJSON_GetObjectItem(json, "humidity");
     // 打印上面所有数据
     printf("wea: %s\n", wea->valuestring);
     printf("wea_img: %s\n", wea_img->valuestring);
