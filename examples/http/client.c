@@ -130,45 +130,49 @@ int http_create_socket(char *ip) {
 //} http_response;
 
 // http_parse_response
-http_response *http_parse_response(char *response) {
-    http_response *http_response1 = (http_response *) malloc(sizeof(http_response));
+http_response *http_parse_response(char *response)
+{
+    //1.解析状态行
+    http_response *http_response = (http_response *) malloc(sizeof(http_response));
     char *pos = strstr(response, "\r\n");
-    if (pos) {
-        *pos = '\0';
-        char *version = strtok(response, " ");
-        char *status_code = strtok(NULL, " ");
-        char *status_text = strtok(NULL, " ");
-        strcpy(http_response1->version, version);
-        http_response1->status_code = atoi(status_code);
-        strcpy(http_response1->status_text, status_text);
+    if (pos == NULL) {
+        return NULL;
     }
+    *pos = '\0';
+    sscanf(response, "%s %d %s", http_response->version, &http_response->status_code, http_response->status_text);
+    *pos = '\r';
+    pos += 2;
 
-    //解析响应头
-    char *next = strstr(pos + 2, "\r\n");
-    if (next) {
-        *next = '\0';
-        char *line = pos + 2;
-        while (strlen(line) > 0) {
-            http_header *header = (http_header *) malloc(sizeof(http_header));
-            pos = strstr(line, ": ");
-            if (pos) {
-                *pos = '\0';
-                strcpy(header->key, line);
-                strcpy(header->value, pos + 2);
-                http_response1->headers[http_response1->header_count++] = header;
-            }
-            line = next + 2;
-            next = strstr(line, "\r\n");
-            if (next) {
-                *next = '\0';
-            }
+    //2.解析响应头
+    http_response->header_count = 0;
+    http_response->headers = (http_header *) malloc(sizeof(http_header));
+    while (1) {
+        char *key = pos;
+        pos = strstr(pos, "\r\n");
+        if (pos == NULL) {
+            break;
         }
+        *pos = '\0';
+        pos += 2;
+        if (strlen(key) == 0) {
+            break;
+        }
+        char *value = strchr(key, ':');
+        if (value == NULL) {
+            continue;
+        }
+        *value = '\0';
+        value++;
+        http_response->header_count++;
+        http_response->headers = (http_header *) realloc(http_response->headers,
+                                                         sizeof(http_header) * http_response->header_count);
+        strcpy(http_response->headers[http_response->header_count - 1].key, key);
+        strcpy(http_response->headers[http_response->header_count - 1].value, value);
     }
+    //3.解析响应体
+    http_response->body = pos;
 
-    //解析响应体
-    http_response1->body = next + 2;
-
-    return http_response1;
+    return http_response;
 }
 
 // 定义get请求方法，使用http_request结构体，返回http_response，模仿python的requests库
