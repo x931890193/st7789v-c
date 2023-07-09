@@ -171,8 +171,8 @@ http_response parse_http_response(const char *response_message) {
 void free_http_response(http_response *response) {
     // 释放动态分配的内存
     for (int i = 0; i < response->header_count; i++) {
-        free(response->headers[i].key);
-        free(response->headers[i].value);
+        free(response->headers[i]->key);
+        free(response->headers[i]->value);
     }
     free(response->body);
 }
