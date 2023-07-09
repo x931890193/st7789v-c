@@ -153,13 +153,14 @@ http_response *http_request(char *method, char *url, char *body, char *headers) 
 
     //4.构建http请求
     char buffer[BUFFER_SIZE];
-    sprintf(buffer, "%s %s HTTP/1.1\r\n", method, resource);
-    sprintf(buffer + strlen(buffer), "Host: %s\r\n", hostname);
-    sprintf(buffer + strlen(buffer), "%s\r\n", headers);
-    if (strcmp(method, "POST") == 0) {
-        sprintf(buffer + strlen(buffer), "%s\r\n", body);
-    }
-    sprintf(buffer + strlen(buffer), "\r\n");
+    sprintf(buffer,
+            "%s %s %s\r\n\
+Host: %s\r\n\
+%s\r\n\
+\r\n",      method,
+            resource, HTTP_VERSION,
+            hostname,
+            CONNECTION_TYPE); //CONNECTION_TYPE我们设置为close
 
     printf("http request: \n%s\n", buffer);
     //5.发送http请求
