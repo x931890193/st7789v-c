@@ -232,7 +232,7 @@ http_response *http_request(char *method, char *url, char *body, char *headers) 
             }
         }
     }
-    printf("1111111111result: %s\n", result
+    printf("1111111111result: %s\n", result);
     // 6.构造上面定义的http_response
     http_response *response = malloc(sizeof(http_response));
     memset(response, 0x00, sizeof(http_response));
