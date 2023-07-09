@@ -130,7 +130,7 @@ int http_create_socket(char *ip) {
 //} http_response;
 
 // http_parse_response
-http_response parse_http_response(const char *response_message) {
+http_response http_parse_response(const char *response_message) {
     http_response response;
 
     // 解析起始行
