@@ -2,18 +2,18 @@
 // Created by sato on 2023/7/9.
 //
 
-#include "client.h"
 #include <stdio.h>
 #include <stdlib.h>
-#include <unistd.h>
 #include <fcntl.h>
 #include <string.h>
 #include <netdb.h>
 #include <sys/select.h>
-#include <sys/types.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
+
+
+#include "client.h"
 
 #define HTTP_VERSION        "HTTP/1.1"
 #define CONNECTION_TYPE     "Connection: close\r\n"
