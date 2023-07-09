@@ -479,7 +479,7 @@ void get_weather_info(char *appid, char *app_secret) {
     // 拼接URL和参数
     char source[100];
     sprintf(source, "/free/day?appid=%s&appsecret=%s", appid, app_secret);
-    char *result = http_send_request(WeatherHost, source);
+    char *result = http_send_request(weather_host, source);
     cJSON *json = cJSON_Parse(result);
     cJSON *wea = cJSON_GetObjectItem(json, "wea");
     cJSON *wea_img = cJSON_GetObjectItem(data, "wea_img");
