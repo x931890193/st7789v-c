@@ -484,9 +484,12 @@ void get_weather_info(char *appid, char *app_secret) {
         printf("http_get error\n");
         return;
     }
-    printf("result: %s\n", result->body);
     printf("status_code: %d\n", result->status_code);
     cJSON *json = cJSON_Parse(result->body);
+    if json == NULL {
+        printf("cJSON_Parse error\n");
+        return;
+    }
     cJSON *wea = cJSON_GetObjectItem(json, "wea");
     cJSON *wea_img = cJSON_GetObjectItem(json, "wea_img");
     cJSON *tem = cJSON_GetObjectItem(json, "tem");

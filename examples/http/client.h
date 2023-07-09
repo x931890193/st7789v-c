@@ -19,7 +19,7 @@ typedef struct {
     char version[16]; //http版本号
     int status_code; //状态码
     char status_text[16]; //状态码描述
-    http_header *headers; //响应头
+    http_header *headers[MAX_HEADERS]; //响应头
     int header_count; //响应头数量
     char *body; //响应体
 } http_response;

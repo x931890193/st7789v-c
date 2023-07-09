@@ -142,7 +142,6 @@ http_response *http_request(char *method, char *url, char *body, char *headers) 
         sprintf(temp, "/%s", resource);
         resource = temp;
     }
-    printf("hostname: %s, resource: %s, port: %d\n", hostname, resource, port);
     //2.通过DNS将域名转为 IP
     char *ip = host_to_ip(hostname);
     if (ip == NULL) {
@@ -190,7 +189,6 @@ http_response *http_request(char *method, char *url, char *body, char *headers) 
         sprintf(buffer + strlen(buffer), "%s\r\n", body);
     }
 
-    printf("http request: \n%s\n", buffer);
     //5.发送http请求
     ssize_t size = send(sockfd, buffer, strlen(buffer), 0);
     if (size < 0) {
@@ -242,7 +240,6 @@ http_response *http_request(char *method, char *url, char *body, char *headers) 
             strncat(result, buffer, len);
         }
     }
-    printf("http response: \n%s\n", result);
     // 6.构造上面定义的http_response
     http_response *response = malloc(sizeof(http_response));
     memset(response, 0x00, sizeof(http_response));
