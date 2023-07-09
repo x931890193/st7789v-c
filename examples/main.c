@@ -27,8 +27,8 @@
 #define BROADCAST_PORT 4000
 #define COUNT  10
 #define SendSleepTime 3
-#define WeatherHost "https://v0.yiketianqi.com"
 
+char WeatherHost[64] = "https://v0.yiketianqi.com";
 char weather_appid[64];
 char weather_app_secret[64];
 
