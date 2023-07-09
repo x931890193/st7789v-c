@@ -45,7 +45,7 @@ struct WeatherInfo {
     char weather[64];
     char wind[64];
     char humidity[64];
-};
+} *weather_info;
 
 int *sock_fd;
 int create_udp_socket();
