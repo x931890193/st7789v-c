@@ -149,7 +149,7 @@ http_response parse_http_response(const char *response_message) {
         // 解析响应头的值
         int value_start = offset + key_length + 2; // 偏移冒号和一个空格的长度
         int value_length = strcspn(response_message + value_start, "\r\n");
-        response.headers[i].value = malloc(value_length + 1);
+        response.headers[i]->value = malloc(value_length + 1);
         strncpy(response.headers[i]->value, response_message + value_start, value_length);
         response.headers[i]->value[value_length] = '\0';
 
