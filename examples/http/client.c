@@ -11,9 +11,9 @@
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
-
-
+#include <unistd.h>
 #include "client.h"
+
 
 #define HTTP_VERSION        "HTTP/1.1"
 #define CONNECTION_TYPE     "Connection: close\r\n"
