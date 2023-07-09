@@ -220,7 +220,6 @@ http_response *http_request(char *method, char *url, char *body, char *headers) 
         result = realloc(result, strlen(result) + size + 1);
         strncat(result, buffer, size);
     }
-    printf("1111111111result: %s\n", result);
     // 6.构造上面定义的http_response
     http_response *response = malloc(sizeof(http_response));
     memset(response, 0x00, sizeof(http_response));
@@ -239,7 +238,23 @@ http_response *http_request(char *method, char *url, char *body, char *headers) 
                response->headers[response->header_count]->value);
         response->header_count++;
     }
-    //6.3 解析响应体
+    printf("header_count:%d\n", response->header_count);
+    printf("headers:%s\n", response->headers[0]->key);
+//    HTTP/1.1 200 OK
+//    Server: nginx
+//    Date: Sun, 09 Jul 2023 10:33:01 GMT
+//    Content-Type: application/json
+//    Transfer-Encoding: chunked
+//    Connection: close
+//    Vary: Accept-Encoding
+//    Access-Control-Allow-Origin: *
+//    Access-Control-Allow-Credentials: true
+//
+//    11a
+//    {"nums":42,"cityid":"101010100","city":"北京","date":"2023-07-09","week":"星期日","update_time":"18:16","wea":"晴","wea_img":"qing","tem":"37","tem_day":"38","tem_night":"25","win":"西风","win_speed":"3级","win_meter":"12km\/h","air":"43","pressure":"992","humidity":"24%"}
+//    0
+    //6.3 解析响应体中json数据
+
 
     return response;
 }
