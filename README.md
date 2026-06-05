@@ -5,6 +5,8 @@
 
 ![image](https://github.com/x931890193/st7789v-c/assets/24632574/1b6de7f9-02d4-40af-8bb2-ac11eaa7fee8)
 
+<img width="240" height="320" alt="image" src="https://github.com/user-attachments/assets/298b3e82-a406-4283-996c-799431f267cb" />
+
 
 # Official demo c Version
 
