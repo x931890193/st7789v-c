@@ -3,9 +3,11 @@
 
 [Datasheet]: https://wiki.pine64.org/images/5/54/ST7789V_v1.6.pdf
 
-![image](https://github.com/x931890193/st7789v-c/assets/24632574/1b6de7f9-02d4-40af-8bb2-ac11eaa7fee8)
-
 <img width="240" height="320" alt="image" src="https://github.com/user-attachments/assets/298b3e82-a406-4283-996c-799431f267cb" />
+
+
+<img width="240" height="320" alt="image" src="https://github.com/user-attachments/assets/c2697e43-9b49-446d-a06d-f98968bd2a2c" />
+
 
 
 # Official demo c Version
